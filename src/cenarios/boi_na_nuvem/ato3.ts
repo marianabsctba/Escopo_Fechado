@@ -87,7 +87,7 @@ export const ato3: Ato = {
         canal: 'email',
         assunto: 'RE: URGENTE: planilha de clientes',
         texto: [
-          'Prezada,',
+          'Prezados,',
           'Recebi a informação de que a planilha continua acessível pelo endereço direto, com o mesmo conteúdo. Isso altera a avaliação do incidente.',
           'Solicitei a remoção imediata do arquivo e os registros de acesso do servidor desde a entrega do relatório.',
           'Dra. Patrícia Albuquerque',

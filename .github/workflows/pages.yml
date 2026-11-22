@@ -25,15 +25,22 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - name: Imagem Linux do cenário Boi na Nuvem
+      - name: Imagens Linux dos cenários
         run: |
-          sudo apt-get install -y -qq cpio kmod >/dev/null
+          sudo apt-get install -y -qq cpio kmod openssl >/dev/null
           sudo bash ferramentas/imagem/construir.sh boi_na_nuvem "$PWD/public/vm/boi_na_nuvem"
-      - name: Robô joga o Ato 1 dentro da VM
+          sudo bash ferramentas/imagem/construir.sh pinhao_forte "$PWD/public/vm/pinhao_forte"
+      - name: "Boi na Nuvem: robô joga o Ato 1 dentro da VM"
         run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato1.json
         timeout-minutes: 8
-      - name: Robô joga o reteste (Ato 3) dentro da VM
+      - name: "Boi na Nuvem: robô joga o reteste"
         run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato3.json reteste
+        timeout-minutes: 8
+      - name: "Pinhão Forte: robô joga o Ato 1 dentro da VM"
+        run: node ferramentas/testar-vm.mjs pinhao_forte ferramentas/roteiros/pinhao_ato1.json
+        timeout-minutes: 8
+      - name: "Pinhão Forte: robô joga o reteste"
+        run: node ferramentas/testar-vm.mjs pinhao_forte ferramentas/roteiros/pinhao_ato3.json reteste
         timeout-minutes: 8
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

@@ -28,12 +28,16 @@ Cada comando digitado chega ao jogo por uma segunda porta serial. É assim que o
 
 A cada publicação, robôs jogam o Ato 1 e o reteste dentro da VM (`ferramentas/roteiros/`). Se algo quebrar, o site não é publicado.
 
+## Pinhão Forte (intermediário)
+
+Teste não anunciado: o SOC do cliente não sabe, e varredura barulhenta abre chamado e custa pontos de discrição. Dicas custam pontos. A fábrica de software terceirizada fica fora do escopo, e ela ainda pede para você esconder achados do relatório. O reconhecimento usa `openssl` para ler certificados, `curl` e `jq` para documentação de API e cabeçalhos, e a LGPD aparece de novo, agora com saldo de associados.
+
 ## Clientes (níveis)
 
 | nível | cliente | situação |
 |---|---|---|
 | Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | completo: contrato, reconhecimento, relatório e reteste |
-| Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná | em breve |
+| Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná com app feito por fábrica terceirizada e SOC vigiando | completo: certificado TLS, documentação de API, cookie, erro verboso, homologação com dado real, relatório e reteste |
 | Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão | em breve |
 
 Empresas, pessoas, domínios (`.exemplo`) e endereços (faixas de documentação da RFC 5737) são fictícios.

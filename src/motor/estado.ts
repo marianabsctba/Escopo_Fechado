@@ -30,12 +30,16 @@ export interface Estado {
   lgpd?: number;
   ato1Concluido?: boolean;
   ato3Concluido?: boolean;
+  /** Chamados abertos pelo SOC do cliente por causa de ruído. */
+  ruido?: number;
   relatorio?: EstadoRelatorio;
   /** Fase do mundo na VM: o reteste sobe os servidores já "corrigidos". */
   fase?: 'teste' | 'reteste';
 }
 
-const CHAVE = 'escopo-fechado:v1';
+const PREFIXO = 'escopo-fechado:v1';
+const chave = (cenario: string) => `${PREFIXO}:${cenario}`;
+const ULTIMO = `${PREFIXO}:ultimo`;
 
 export function novoEstado(cenario: string): Estado {
   return {
@@ -54,9 +58,23 @@ export function completar(e: Estado): Estado {
   return e;
 }
 
-export function carregar(): Estado | null {
+/** A primeira versão guardava um progresso só, sem o cliente na chave. */
+function migrar(): void {
   try {
-    const bruto = localStorage.getItem(CHAVE);
+    const antigo = localStorage.getItem(PREFIXO);
+    if (!antigo) return;
+    const e = JSON.parse(antigo) as Estado;
+    if (e?.cenario && !localStorage.getItem(chave(e.cenario))) localStorage.setItem(chave(e.cenario), antigo);
+    localStorage.removeItem(PREFIXO);
+  } catch {
+    /* nada a migrar */
+  }
+}
+
+export function carregar(cenario: string): Estado | null {
+  migrar();
+  try {
+    const bruto = localStorage.getItem(chave(cenario));
     if (!bruto) return null;
     const e = JSON.parse(bruto) as Estado;
     return e.versao === 1 ? completar(e) : null;
@@ -67,15 +85,24 @@ export function carregar(): Estado | null {
 
 export function salvar(e: Estado): void {
   try {
-    localStorage.setItem(CHAVE, JSON.stringify(e));
+    localStorage.setItem(chave(e.cenario), JSON.stringify(e));
+    localStorage.setItem(ULTIMO, e.cenario);
   } catch {
     /* sem armazenamento: o jogo segue sem salvar */
   }
 }
 
-export function apagar(): void {
+export function ultimoCenario(): string | null {
   try {
-    localStorage.removeItem(CHAVE);
+    return localStorage.getItem(ULTIMO);
+  } catch {
+    return null;
+  }
+}
+
+export function apagar(cenario: string): void {
+  try {
+    localStorage.removeItem(chave(cenario));
   } catch {
     /* nada a fazer */
   }
@@ -96,6 +123,11 @@ export function pontosEscopo(e: Estado): number {
 /** Pontos de LGPD: cada evidência com dado pessoal exposto custa 25. */
 export function pontosLgpd(e: Estado): number {
   return Math.max(0, 100 - (e.lgpd ?? 0) * 25);
+}
+
+/** Pontos de discrição: cada chamado do SOC custa 20. */
+export function pontosRuido(e: Estado): number {
+  return Math.max(0, 100 - (e.ruido ?? 0) * 20);
 }
 
 /** Acha a entrada do manual para um comando digitado. */

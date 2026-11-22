@@ -3,7 +3,7 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import type { Achado, Cenario, EventoMundo, Mensagem, Severidade, Status } from '../motor/tipos';
-import { type Estado, salvar, prudencia, pontosEscopo, pontosLgpd, explicar } from '../motor/estado';
+import { type Estado, salvar, prudencia, pontosEscopo, pontosLgpd, pontosRuido, explicar } from '../motor/estado';
 import { violacoes } from '../motor/escopo';
 import { MaquinaVM, type EventoVM } from '../motor/vm';
 import { h, limpar } from './dom';
@@ -11,6 +11,7 @@ import { itemLista, leitura, pessoa } from './mensagens';
 import { documentoContrato } from './contrato';
 import { caderno } from './caderno';
 import { chuva } from './chuva';
+import { rotuloNivel } from '../cenarios';
 
 type Aba = 'caderno' | 'mensagens' | 'manual' | 'contrato';
 
@@ -43,6 +44,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     h('small', {}, 'O notebook de teste é um Linux de verdade rodando no seu navegador. O primeiro boot leva uns 20 segundos.'));
   const terminalEl = h('div', { class: 'terminal' });
 
+  const totalDicas = () => Object.values(e.dicas ?? {}).reduce((s, n) => s + n, 0);
   const desenharPlacar = () => {
     limpar(placar);
     const obrig = ato?.achados.filter((a) => !a.bonus) ?? [];
@@ -51,6 +53,8 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       h('span', { title: 'Respostas do checklist do contrato' }, 'prudência ', h('b', {}, String(prudencia(e)))),
       h('span', { title: 'Cada saída do escopo custa pontos' }, 'escopo ', h('b', { class: e.violacoes.length ? 'ruim' : '' }, String(pontosEscopo(e)))),
       h('span', { title: 'Evidência com dado pessoal exposto custa pontos' }, 'lgpd ', h('b', { class: e.lgpd ? 'ruim' : '' }, String(pontosLgpd(e)))),
+      c.soc ? h('span', { title: `Chamados abertos pelo ${c.soc.nome}` }, 'discrição ', h('b', { class: e.ruido ? 'ruim' : '' }, String(pontosRuido(e)))) : '',
+      c.nivel !== 'iniciante' ? h('span', { title: 'Dicas usadas (custam pontos neste nível)' }, 'dicas ', h('b', { class: totalDicas() ? 'ruim' : '' }, String(totalDicas()))) : '',
       ato ? h('span', { title: 'Achados obrigatórios registrados' }, 'achados ', h('b', {}, `${feitos}/${obrig.length}`)) : '',
     );
   };
@@ -109,9 +113,10 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       conteudo.append(
         caderno(ato, e, achadoAberto,
           (id) => { achadoAberto = id; desenharConteudo(); },
-          (a) => { (e.dicas ??= {})[a.id] = (e.dicas[a.id] ?? 0) + 1; salvar(e); desenharConteudo(); },
+          (a) => { (e.dicas ??= {})[a.id] = (e.dicas[a.id] ?? 0) + 1; salvar(e); desenharConteudo(); desenharPlacar(); },
           registrar,
-          () => { e.lgpd = (e.lgpd ?? 0) + 1; salvar(e); desenharPlacar(); avisar('Evidência com CPF inteiro. Prova mínima é mascarada.', 'ruim'); }),
+          () => { e.lgpd = (e.lgpd ?? 0) + 1; salvar(e); desenharPlacar(); avisar('Evidência com dado pessoal exposto. Prova mínima é mascarada.', 'ruim'); },
+          c.nivel !== 'iniciante'),
         fimDoAto(),
         h('p', { class: 'dica-copia' }, 'Dica: selecionar texto no terminal já copia. Cole aqui com Ctrl+V.'),
       );
@@ -163,6 +168,27 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     desenharPlacar();
   };
 
+  // SOC do cliente: conta requisições numa janela e reage a varredura agressiva
+  let acessos: number[] = [];
+  let ultimoChamado = 0;
+  const alertaSoc = (motivo: string) => {
+    if (!c.soc || Date.now() - ultimoChamado < 60_000) return;
+    ultimoChamado = Date.now();
+    acessos = [];
+    e.ruido = (e.ruido ?? 0) + 1;
+    const m = c.soc.chamado(e.ruido, motivo);
+    novaMensagem({ ...m, id: `${m.id}-${e.ruido}` });
+    salvar(e);
+    desenharPlacar();
+  };
+  const contarAcesso = () => {
+    if (!c.soc) return;
+    const agora = Date.now();
+    acessos = acessos.filter((t) => agora - t < c.soc!.janelaSeg * 1000);
+    acessos.push(agora);
+    if (acessos.length > c.soc.limite) alertaSoc(`${acessos.length} requisições em menos de ${c.soc.janelaSeg} segundos`);
+  };
+
   const reagir = (ev: EventoMundo) => {
     for (const r of ato?.reacoes ?? []) {
       if (e.disparadas!.includes(r.id) || !r.quando(ev)) continue;
@@ -178,7 +204,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       { class: 'mesa' },
       h('header', { class: 'topo' },
         h('h1', {}, 'escopo_fechado'),
-        h('span', { class: 'caso' }, `${c.nome} · ${c.nivel}`),
+        h('span', { class: 'caso' }, `${c.nome} · ${rotuloNivel[c.nivel].toLowerCase()}`),
         placar,
         h('button', { class: 'botao secundario pequeno', onclick: aoSair }, 'menu')),
       h('div', { class: 'mesa-corpo' },
@@ -218,16 +244,22 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
 
   const aoEvento = (ev: EventoVM) => {
     if (ev.tipo === 'pronto') {
-      chuvaBoot.parar();
-      carregando.remove();
+      // ajusta o tamanho do terminal ainda com a tela de carga na frente,
+      // para o comando do jogo não se misturar com o que a pessoa digitar
       fit.fit();
-      setTimeout(() => { ajustarTamanho(); term.focus(); }, 800);
-      avisar('VPN conectada. O notebook de teste é seu.');
+      setTimeout(() => ajustarTamanho(), 400);
+      setTimeout(() => {
+        chuvaBoot.parar();
+        carregando.remove();
+        term.focus();
+        avisar('VPN conectada. O notebook de teste é seu.');
+      }, 1400);
     } else if (ev.tipo === 'cmd' && !comandoDoJogo(ev.comando)) {
       e.comandos++;
       ultimoCmd = ev.comando;
       const v = violacoes(ev.comando, c.escopo!)[0];
       if (v) foraDoEscopo(v.alvo, v.motivo ?? '');
+      if (c.soc && c.soc.barulhento.test(ev.comando)) alertaSoc('varredura agressiva detectada');
       reagir({ tipo: 'cmd', comando: ev.comando });
       salvar(e);
       desenharPlacar();
@@ -236,6 +268,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       const motivo = c.hostsFora?.[ev.host];
       // o comando já foi acusado; o acesso HTTP só conta se veio por outro caminho
       if (motivo && Date.now() - ultimaViolacao > 20_000) foraDoEscopo(ev.host, motivo);
+      contarAcesso();
       reagir({ tipo: 'http', host: ev.host, caminho: ev.caminho, agente: ev.agente });
     }
   };

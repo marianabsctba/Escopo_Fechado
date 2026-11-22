@@ -1,0 +1,7 @@
+[
+  { "cmd": "curl -sk -o /dev/null -w '%{http_code}\\n' https://app.pinhaoforte.exemplo/api/docs/openapi.json", "espera": "401" },
+  { "cmd": "curl -skI https://app.pinhaoforte.exemplo/ | grep -i set-cookie", "espera": "PFSESSID=7f3a9c1e2b; Path=/; Secure; HttpOnly" },
+  { "cmd": "curl -skI https://app.pinhaoforte.exemplo/ | grep -ic -e samesite -e x-powered-by", "espera": "\\s0\\s" },
+  { "cmd": "curl -sk 'https://app.pinhaoforte.exemplo/api/v1/cotacao?moeda=XYZ'", "espera": "Moeda inválida" },
+  { "cmd": "curl -sk https://192.0.2.40:8443/status | jq -r '.base, .amostra[0].cpf'", "espera": "copia de producao[\\s\\S]*418\\.\\*\\*\\*\\.\\*\\*\\*-10" }
+]

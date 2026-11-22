@@ -108,7 +108,7 @@ export const ato1: Ato = {
         canal: 'email',
         assunto: 'URGENTE: planilha de clientes',
         texto: [
-          'Prezada,',
+          'Prezados,',
           'Recebi seu aviso preliminar sobre a planilha de clientes em pasta pública. Obrigada por comunicar de imediato e por enviar a evidência mascarada.',
           'O arquivo será retirado do ar hoje e iniciaremos a avaliação do incidente com base na LGPD. O Jefferson foi informado. Ele não está bem.',
           'Dra. Patrícia Albuquerque',

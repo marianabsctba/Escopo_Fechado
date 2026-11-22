@@ -13,7 +13,7 @@ const LINHAS = [
   '> o cliente é que nem sempre ajuda.',
 ];
 
-export function telaInicio(raiz: HTMLElement, temProgresso: boolean, aoEscolher: (c: Cenario, recomecar: boolean) => void): void {
+export function telaInicio(raiz: HTMLElement, temProgresso: (id: string) => boolean, aoEscolher: (c: Cenario, recomecar: boolean) => void): void {
   limpar(raiz);
   const canvas = h('canvas', { class: 'chuva', 'aria-hidden': 'true' });
   const console_ = h('pre', { class: 'console-capa', 'aria-label': LINHAS.join(' ') });
@@ -36,8 +36,8 @@ export function telaInicio(raiz: HTMLElement, temProgresso: boolean, aoEscolher:
             h('p', {}, c.chamada),
             c.disponivel
               ? h('div', { class: 'acoes' },
-                  h('button', { class: 'botao', onclick: () => { parar(); aoEscolher(c, false); } }, temProgresso ? '> continuar' : '> aceitar o trabalho'),
-                  temProgresso ? h('button', { class: 'botao secundario', onclick: () => { if (confirm('Apagar o progresso e começar do contrato?')) { parar(); aoEscolher(c, true); } } }, 'recomeçar') : null)
+                  h('button', { class: 'botao', onclick: () => { parar(); aoEscolher(c, false); } }, temProgresso(c.id) ? '> continuar' : '> aceitar o trabalho'),
+                  temProgresso(c.id) ? h('button', { class: 'botao secundario', onclick: () => { if (confirm('Apagar o progresso e começar do contrato?')) { parar(); aoEscolher(c, true); } } }, 'recomeçar') : null)
               : h('p', { class: 'embreve' }, '// em negociação com o cliente')))),
       h('footer', { class: 'rodape-capa' }, 'Empresas, pessoas, domínios e endereços são fictícios. ', h('a', { href: 'https://github.com/marianabsctba/Escopo_Fechado' }, 'código no GitHub'))),
   );

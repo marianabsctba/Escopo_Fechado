@@ -9,6 +9,7 @@ import html
 import importlib.util
 import json
 import os
+import ssl
 import sys
 import threading
 import urllib.parse
@@ -56,6 +57,12 @@ def fabricar_handler(cfg):
 
         def log_message(self, *a):
             pass
+
+        def end_headers(self):
+            # cabeçalhos fixos do servidor (cookies, versão do framework...)
+            for k, v in cfg.get("cabecalhos", {}).items():
+                self.send_header(k, v)
+            super().end_headers()
 
         def send_response(self, code, message=None):
             self._status = code
@@ -174,6 +181,10 @@ def main():
         ThreadingHTTPServer.allow_reuse_address = True
         srv = ThreadingHTTPServer((cfg["ip"], cfg["porta"]), fabricar_handler(cfg))
         srv.daemon_threads = True
+        if cfg.get("tls"):
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ctx.load_cert_chain(cfg["tls"]["cert"], cfg["tls"]["chave"])
+            srv.socket = ctx.wrap_socket(srv.socket, server_side=True)
         servidores.append(srv)
         os.setns(ns_original, os.CLONE_NEWNET)
     for srv in servidores:

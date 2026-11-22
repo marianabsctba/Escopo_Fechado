@@ -1,0 +1,34 @@
+[
+  {
+    "host": "www", "ip": "192.0.2.34", "porta": 443,
+    "raiz": "/srv/www/html", "server": "nginx/1.18.0",
+    "tls": { "cert": "/etc/escopo/tls/www.crt", "chave": "/etc/escopo/tls/www.key" }
+  },
+  {
+    "host": "www", "ip": "192.0.2.34", "porta": 80,
+    "raiz": "/srv/www/html", "server": "nginx/1.18.0"
+  },
+  {
+    "host": "app", "ip": "192.0.2.36", "porta": 443,
+    "raiz": "/srv/app/html", "server": "nginx/1.18.0",
+    "app": "/srv/app/app.py",
+    "cabecalhos": { "X-Powered-By": "Express 4.16.0", "Set-Cookie": "PFSESSID=7f3a9c1e2b; Path=/" },
+    "tls": { "cert": "/etc/escopo/tls/app.crt", "chave": "/etc/escopo/tls/app.key" }
+  },
+  {
+    "host": "homolog", "ip": "192.0.2.40", "porta": 8443,
+    "raiz": "/srv/homolog/html", "server": "nginx/1.18.0",
+    "app": "/srv/homolog/app.py",
+    "tls": { "cert": "/etc/escopo/tls/homolog.crt", "chave": "/etc/escopo/tls/homolog.key" }
+  },
+  {
+    "host": "coderapido", "ip": "198.51.100.40", "porta": 443,
+    "raiz": "/srv/coderapido/html", "server": "nginx",
+    "tls": { "cert": "/etc/escopo/tls/coderapido.crt", "chave": "/etc/escopo/tls/coderapido.key" }
+  },
+  {
+    "host": "araucaria", "ip": "198.51.100.90", "porta": 443,
+    "raiz": "/srv/araucaria/html", "server": "Microsoft-IIS/10.0",
+    "tls": { "cert": "/etc/escopo/tls/araucaria.crt", "chave": "/etc/escopo/tls/araucaria.key" }
+  }
+]

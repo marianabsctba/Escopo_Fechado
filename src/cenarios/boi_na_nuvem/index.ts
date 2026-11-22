@@ -15,7 +15,7 @@ const foraDoEscopo = (alvo: string, motivo: string, vez: number): Mensagem => {
       canal: 'email',
       assunto: 'Atividade fora do escopo contratado',
       texto: [
-        'Prezada,',
+        'Prezados,',
         `Nosso registro indica atividade direcionada a ${alvo}. ${motivo}`,
         'Lembro que a cláusula 3 das Regras de Engajamento limita os testes aos ativos listados. Atividade fora dela não tem autorização do Boi na Nuvem, e sem autorização não existe pentest: existe invasão.',
         'Fica registrado. Peço que não se repita.',
@@ -186,7 +186,7 @@ export const boiNaNuvem: Cenario = {
         canal: 'email',
         assunto: 'Regras de Engajamento para assinatura',
         texto: [
-          'Prezada,',
+          'Prezados,',
           'Segue em anexo o documento de Regras de Engajamento do teste de intrusão. Peço atenção especial às cláusulas 3 (escopo), 4 (janela) e 7 (LGPD).',
           'O teste só pode começar após a assinatura.',
           'Atenciosamente,\nDra. Patrícia Albuquerque\nJurídico e Compliance, Boi na Nuvem Frigorífico S.A.',
@@ -285,7 +285,7 @@ export const boiNaNuvem: Cenario = {
         canal: 'email',
         assunto: 'RE: Regras de Engajamento para assinatura',
         texto: [
-          'Prezada,',
+          'Prezados,',
           'Recebemos o documento assinado. O teste está autorizado nos termos das Regras de Engajamento, dentro da janela das 22h às 6h.',
           'Atenciosamente,\nDra. Patrícia Albuquerque',
         ],

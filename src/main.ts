@@ -1,6 +1,6 @@
 import './estilo.css';
 import { cenarios } from './cenarios';
-import { apagar, carregar, novoEstado, salvar, type Estado } from './motor/estado';
+import { apagar, carregar, novoEstado, salvar, ultimoCenario, type Estado } from './motor/estado';
 import type { Cenario } from './motor/tipos';
 import { telaInicio } from './ui/inicio';
 import { telaContrato } from './ui/contrato';
@@ -29,19 +29,21 @@ function abrir(c: Cenario, e: Estado): void {
 }
 
 function inicio(): void {
-  const salvo = carregar();
   let direto = false;
   try { direto = sessionStorage.getItem(DIRETO) === '1'; sessionStorage.removeItem(DIRETO); } catch { /* nada */ }
-  const c = salvo && cenarios.find((x) => x.id === salvo.cenario);
-  if (direto && salvo && c) { abrir(c, salvo); return; }
+  const ultimo = ultimoCenario();
+  const cUltimo = ultimo ? cenarios.find((x) => x.id === ultimo) : undefined;
+  const eUltimo = cUltimo ? carregar(cUltimo.id) : null;
+  if (direto && cUltimo && eUltimo) { abrir(cUltimo, eUltimo); return; }
 
-  telaInicio(raiz, !!salvo, (c, recomecar) => {
-    let e = salvo && salvo.cenario === c.id && !recomecar ? salvo : null;
+  telaInicio(raiz, (id) => !!carregar(id), (c, recomecar) => {
+    let e = recomecar ? null : carregar(c.id);
     if (!e) {
-      apagar();
+      apagar(c.id);
       e = novoEstado(c.id);
       salvar(e);
     }
+    salvar(e);
     abrir(c, e);
   });
 }

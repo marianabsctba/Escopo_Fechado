@@ -1,0 +1,7 @@
+127.0.0.1	localhost
+::1	localhost
+# DNS publico (como a internet resolve esses nomes)
+192.0.2.34	www.pinhaoforte.exemplo pinhaoforte.exemplo
+192.0.2.36	app.pinhaoforte.exemplo
+198.51.100.40	git.coderapido.exemplo coderapido.exemplo
+198.51.100.90	www.araucaria.exemplo araucaria.exemplo

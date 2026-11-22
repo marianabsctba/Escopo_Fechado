@@ -1,16 +1,10 @@
 import type { Cenario } from '../motor/tipos';
 import { boiNaNuvem } from './boi_na_nuvem';
+import { pinhaoForte } from './pinhao_forte';
 
 export const cenarios: Cenario[] = [
   boiNaNuvem,
-  {
-    id: 'pinhao_forte',
-    nome: 'Pinhão Forte',
-    nivel: 'intermediario',
-    local: 'Cooperativa de crédito no Paraná',
-    chamada: 'Lançou um app "igual banco digital" feito por uma fábrica de software terceirizada. O gerente acha que segurança é o cadeado do navegador.',
-    disponivel: false,
-  },
+  pinhaoForte,
   {
     id: 'bom_sossego',
     nome: 'São Jerônimo do Bom Sossego',

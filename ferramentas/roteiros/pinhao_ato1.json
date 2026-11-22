@@ -1,0 +1,14 @@
+[
+  { "cmd": "ls /srv /etc/escopo", "espera": "Permission denied" },
+  { "cmd": "nmap -sT -p 80,443,8080,8443 192.0.2.32/28", "espera": "192\\.0\\.2\\.34[\\s\\S]*443/tcp +open[\\s\\S]*192\\.0\\.2\\.36[\\s\\S]*192\\.0\\.2\\.40[\\s\\S]*8443/tcp +open" },
+  { "cmd": "echo | openssl s_client -connect 192.0.2.34:443 2>/dev/null | openssl x509 -noout -ext subjectAltName", "espera": "homolog-app\\.pinhaoforte\\.exemplo" },
+  { "cmd": "curl -sk https://app.pinhaoforte.exemplo/api/docs/openapi.json | jq -r '.paths | keys[]'", "espera": "/v1/interno/exportar-associados" },
+  { "cmd": "curl -sk https://app.pinhaoforte.exemplo/api/docs/openapi.json | jq -r '.servers[].url'", "espera": "homolog-app" },
+  { "cmd": "curl -skI https://app.pinhaoforte.exemplo/", "espera": "Set-Cookie: PFSESSID=7f3a9c1e2b; Path=/\\s" },
+  { "cmd": "curl -skI https://app.pinhaoforte.exemplo/ | grep -ic strict-transport", "espera": "\\s0\\s" },
+  { "cmd": "curl -sk 'https://app.pinhaoforte.exemplo/api/v1/cotacao?moeda=XYZ'", "espera": "db-core\\.pinhao\\.interno" },
+  { "cmd": "curl -sk https://app.pinhaoforte.exemplo/api/v1/interno/exportar-associados", "espera": "token ausente" },
+  { "cmd": "curl -sk https://192.0.2.40:8443/status | jq -r .base", "espera": "copia de producao" },
+  { "cmd": "curl -sk --resolve homolog-app.pinhaoforte.exemplo:8443:192.0.2.40 https://homolog-app.pinhaoforte.exemplo:8443/status | jq '.amostra | length'", "espera": "\\s3\\s" },
+  { "cmd": "echo fim", "canal": "^EF:HTTP homolog\t8443\tGET\t/status\t200" }
+]

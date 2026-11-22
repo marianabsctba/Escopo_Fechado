@@ -148,6 +148,16 @@ export interface Cenario {
   ato2?: AtoRelatorio;
   /** Reteste: mesmo formato de ato, com o mundo na fase "corrigida". */
   ato3?: Ato;
+  /** SOC do cliente: varredura barulhenta abre chamado. */
+  soc?: {
+    nome: string;
+    /** Requisições HTTP aceitas por janela antes do alerta. */
+    limite: number;
+    janelaSeg: number;
+    /** Comandos que disparam alerta na hora (varredura agressiva). */
+    barulhento: RegExp;
+    chamado: (vez: number, motivo: string) => Mensagem;
+  };
   /** Hosts do mundo que estão fora do escopo (para os acessos HTTP). */
   hostsFora?: Record<string, string>;
 }

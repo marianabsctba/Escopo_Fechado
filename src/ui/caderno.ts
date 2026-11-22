@@ -29,6 +29,7 @@ export function caderno(
   aoDica: (a: Achado) => void,
   aoRegistrar: AoRegistrar,
   aoLgpd: () => void,
+  custoDica = false,
 ): HTMLElement {
   const obrig = ato.achados.filter((a) => !a.bonus);
   const feitos = obrig.filter((a) => e.achados?.[a.id]).length;
@@ -38,7 +39,7 @@ export function caderno(
     h('p', { class: 'sobretitulo' }, ato.titulo),
     h('h2', {}, 'Caderno de evidências'),
     h('p', { class: 'progresso' }, `${feitos} de ${obrig.length} ${ato.modo === 'reteste' ? 'itens retestados' : 'achados registrados'}`, h('span', { class: 'trilho' }, h('span', { style: `width:${(feitos / obrig.length) * 100}%` }))),
-    ...ato.achados.map((a) => cartao(a, e, aberto === a.id, aoAbrir, aoDica, aoRegistrar, aoLgpd, ato.modo === 'reteste')),
+    ...ato.achados.map((a) => cartao(a, e, aberto === a.id, aoAbrir, aoDica, aoRegistrar, aoLgpd, ato.modo === 'reteste', custoDica)),
   );
 }
 
@@ -51,6 +52,7 @@ function cartao(
   aoRegistrar: AoRegistrar,
   aoLgpd: () => void,
   reteste: boolean,
+  custoDica: boolean,
 ): HTMLElement {
   const reg = e.achados?.[a.id];
   const nDicas = e.dicas?.[a.id] ?? 0;
@@ -65,7 +67,7 @@ function cartao(
   const corpo: (HTMLElement | null)[] = [h('p', {}, a.objetivo)];
   if (nDicas) corpo.push(h('ol', { class: 'dicas' }, ...a.dicas.slice(0, nDicas).map((d) => h('li', {}, d))));
   if (!reg && nDicas < a.dicas.length) {
-    corpo.push(h('button', { class: 'botao secundario pequeno', onclick: () => aoDica(a) }, nDicas ? 'Mais uma dica' : 'Pedir dica'));
+    corpo.push(h('button', { class: 'botao secundario pequeno', onclick: () => aoDica(a) }, (nDicas ? 'Mais uma dica' : 'Pedir dica') + (custoDica ? ' (custa pontos)' : '')));
   }
 
   const hora = (q: string) => new Date(q).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
