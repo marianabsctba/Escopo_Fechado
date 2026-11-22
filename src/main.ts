@@ -6,6 +6,9 @@ import { telaInicio } from './ui/inicio';
 import { telaContrato } from './ui/contrato';
 import { telaMesa } from './ui/mesa';
 import { telaRelatorio } from './ui/relatorio';
+import { trilha } from './som/motor';
+import { faixaDaTela } from './som/faixas';
+import { controleSom } from './ui/controle-som';
 
 const raiz = document.getElementById('app')!;
 const DIRETO = 'escopo-fechado:direto';
@@ -20,6 +23,7 @@ function irPara(e: Estado, etapa: Estado['etapa'], fase?: Estado['fase']): void 
 }
 
 function abrir(c: Cenario, e: Estado): void {
+  trilha.tocar(faixaDaTela(e.etapa, c.id));
   if (e.etapa === 'contrato') telaContrato(raiz, c, e, () => abrir(c, e));
   else if (e.etapa === 'relatorio') {
     telaRelatorio(raiz, c, e, () => irPara(e, 'mesa'), () => irPara(e, 'mesa', 'reteste'));
@@ -36,6 +40,7 @@ function inicio(): void {
   const eUltimo = cUltimo ? carregar(cUltimo.id) : null;
   if (direto && cUltimo && eUltimo) { abrir(cUltimo, eUltimo); return; }
 
+  trilha.tocar(faixaDaTela('capa'));
   telaInicio(raiz, (id) => !!carregar(id), (c, recomecar) => {
     let e = recomecar ? null : carregar(c.id);
     if (!e) {
@@ -48,4 +53,7 @@ function inicio(): void {
   });
 }
 
+// trilha sonora: começa no primeiro clique ou tecla
+trilha.instalar();
+controleSom();
 inicio();
