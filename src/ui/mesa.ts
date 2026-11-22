@@ -2,43 +2,54 @@
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import type { Cenario, Mensagem } from '../motor/tipos';
-import { type Estado, salvar, prudencia, pontosEscopo, explicar } from '../motor/estado';
+import type { Achado, Cenario, EventoMundo, Mensagem, Severidade } from '../motor/tipos';
+import { type Estado, salvar, prudencia, pontosEscopo, pontosLgpd, explicar } from '../motor/estado';
 import { violacoes } from '../motor/escopo';
 import { MaquinaVM, type EventoVM } from '../motor/vm';
 import { h, limpar } from './dom';
-import { itemLista, leitura } from './mensagens';
+import { itemLista, leitura, pessoa } from './mensagens';
 import { documentoContrato } from './contrato';
+import { caderno } from './caderno';
+import { chuva } from './chuva';
 
-type Aba = 'mensagens' | 'contrato' | 'caderno' | 'manual';
+type Aba = 'caderno' | 'mensagens' | 'manual' | 'contrato';
+
+/** Comandos que o próprio jogo digita não contam. */
+export function comandoDoJogo(cmd: string): boolean {
+  return /^\s*stty rows \d+ cols \d+; clear$/.test(cmd);
+}
 
 export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () => void): void {
   limpar(raiz);
-  const dinamicas = new Map<string, Mensagem>();
-  const todas = (): Mensagem[] => [...(c.ato0?.assinado ?? []), ...dinamicas.values()];
-  let aba: Aba = 'manual';
+  const ato = c.ato1;
+  const todas = (): Mensagem[] => [...(c.ato0?.assinado ?? []), ...(e.extras ?? [])];
+  let aba: Aba = ato ? 'caderno' : 'manual';
   let aberta: string | null = null;
+  let achadoAberto: string | null = ato?.achados.find((a) => !e.achados?.[a.id])?.id ?? null;
   let ultimoCmd: string | null = null;
-
-  // reconstrói reações já recebidas
-  e.violacoes.forEach((v, i) => {
-    const r = c.reacoes?.foraDoEscopo(v.alvo, '', i + 1);
-    if (r) dinamicas.set(r.id, r);
-  });
+  let ultimaViolacao = 0;
 
   const placar = h('div', { class: 'placar' });
   const abas = h('nav', { class: 'abas', role: 'tablist' });
   const conteudo = h('div', { class: 'aba-conteudo' });
   const avisos = h('div', { class: 'avisos', 'aria-live': 'polite' });
-  const carregando = h('div', { class: 'carregando' }, h('p', {}, 'Conectando na VPN do cliente...'), h('div', { class: 'barra' }, h('span', {})), h('small', {}, 'O notebook de teste é um Linux de verdade rodando no seu navegador. O primeiro boot leva um tempinho.'));
+  const canvasChuva = h('canvas', { class: 'chuva', 'aria-hidden': 'true' });
+  const carregando = h('div', { class: 'carregando' },
+    canvasChuva,
+    h('p', { class: 'digitando' }, 'conectando na VPN do cliente'),
+    h('div', { class: 'barra' }, h('span', {})),
+    h('small', {}, 'O notebook de teste é um Linux de verdade rodando no seu navegador. O primeiro boot leva uns 20 segundos.'));
   const terminalEl = h('div', { class: 'terminal' });
 
   const desenharPlacar = () => {
     limpar(placar);
+    const obrig = ato?.achados.filter((a) => !a.bonus) ?? [];
+    const feitos = obrig.filter((a) => e.achados?.[a.id]).length;
     placar.append(
-      h('span', { title: 'Respostas do checklist do contrato' }, 'Prudência ', h('b', {}, String(prudencia(e)))),
-      h('span', { title: 'Cada saída do escopo custa pontos' }, 'Escopo ', h('b', { class: e.violacoes.length ? 'ruim' : '' }, String(pontosEscopo(e)))),
-      h('span', {}, 'Comandos ', h('b', {}, String(e.comandos))),
+      h('span', { title: 'Respostas do checklist do contrato' }, 'prudência ', h('b', {}, String(prudencia(e)))),
+      h('span', { title: 'Cada saída do escopo custa pontos' }, 'escopo ', h('b', { class: e.violacoes.length ? 'ruim' : '' }, String(pontosEscopo(e)))),
+      h('span', { title: 'Evidência com dado pessoal exposto custa pontos' }, 'lgpd ', h('b', { class: e.lgpd ? 'ruim' : '' }, String(pontosLgpd(e)))),
+      ato ? h('span', { title: 'Achados obrigatórios registrados' }, 'achados ', h('b', {}, `${feitos}/${obrig.length}`)) : '',
     );
   };
 
@@ -46,7 +57,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
 
   const desenharAbas = () => {
     limpar(abas);
-    const nomes: [Aba, string][] = [['manual', 'Manual'], ['mensagens', 'Mensagens'], ['contrato', 'Contrato'], ['caderno', 'Caderno']];
+    const nomes: [Aba, string][] = [['caderno', 'Caderno'], ['mensagens', 'Mensagens'], ['manual', 'Manual'], ['contrato', 'Contrato']];
     for (const [id, nome] of nomes) {
       const n = id === 'mensagens' ? naoLidas() : 0;
       abas.append(
@@ -56,9 +67,34 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     }
   };
 
+  const registrar = (a: Achado, sev: Severidade) => {
+    (e.achados ??= {})[a.id] = { quando: new Date().toISOString(), severidade: sev };
+    avisar(`Achado registrado: ${a.titulo}`);
+    if (a.aoRegistrar) novaMensagem(a.aoRegistrar);
+    const obrig = ato!.achados.filter((x) => !x.bonus);
+    if (!e.ato1Concluido && obrig.every((x) => e.achados?.[x.id])) {
+      e.ato1Concluido = true;
+      for (const m of ato!.conclusao) novaMensagem(m);
+    }
+    achadoAberto = ato!.achados.find((x) => !e.achados?.[x.id])?.id ?? null;
+    salvar(e);
+    desenharPlacar();
+    desenharConteudo();
+  };
+
   const desenharConteudo = () => {
     limpar(conteudo);
-    if (aba === 'mensagens') {
+    if (aba === 'caderno' && ato) {
+      conteudo.append(
+        caderno(ato, e, achadoAberto,
+          (id) => { achadoAberto = id; desenharConteudo(); },
+          (a) => { (e.dicas ??= {})[a.id] = (e.dicas[a.id] ?? 0) + 1; salvar(e); desenharConteudo(); },
+          registrar,
+          () => { e.lgpd = (e.lgpd ?? 0) + 1; salvar(e); desenharPlacar(); avisar('Evidência com CPF inteiro. Prova mínima é mascarada.', 'ruim'); }),
+        e.ato1Concluido ? h('div', { class: 'fim-ato' }, h('h3', {}, 'Ato 1 concluído'), h('p', {}, 'O sistema de pedidos fica para o Ato 2, que está em construção. Enquanto isso, dá pra caçar o bônus e revisar as recomendações.')) : '',
+        h('p', { class: 'dica-copia' }, 'Dica: selecionar texto no terminal já copia. Cole aqui com Ctrl+V.'),
+      );
+    } else if (aba === 'mensagens') {
       const ms = todas().slice().reverse();
       const m = ms.find((x) => x.id === aberta) ?? ms[0];
       if (m && !e.lidas.includes(m.id)) { e.lidas.push(m.id); salvar(e); }
@@ -68,20 +104,14 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       );
     } else if (aba === 'contrato') {
       conteudo.append(documentoContrato(c), h('p', { class: 'assinatura' }, `Assinado por ${e.assinadoPor ?? '?'}.`));
-    } else if (aba === 'caderno') {
-      conteudo.append(
-        h('h2', {}, 'Caderno de evidências'),
-        h('p', {}, 'Aqui vão os achados do reconhecimento, cada um com evidência, horário e severidade. O Ato 1 chega na próxima versão.'),
-        h('p', {}, 'Enquanto isso, o terminal já é seu: explore o notebook, leia o manual e confira o escopo antes de cada comando de rede.'),
-      );
     } else {
       const cmd = ultimoCmd ? explicar(ultimoCmd, c.manual ?? []) : null;
       conteudo.append(
         cmd
-          ? h('section', { class: 'explica' }, h('p', { class: 'sobretitulo' }, 'Você digitou'), h('code', {}, ultimoCmd!), h('h3', {}, cmd.nome), h('p', {}, cmd.resumo),
+          ? h('section', { class: 'explica' }, h('p', { class: 'sobretitulo' }, 'você digitou'), h('code', {}, ultimoCmd!), h('h3', {}, cmd.nome), h('p', {}, cmd.resumo),
               ...cmd.exemplos.map((x) => h('p', { class: 'exemplo' }, h('code', {}, x.cmd), ' ', x.explica)),
               cmd.pratica ? h('p', { class: 'pratica' }, h('strong', {}, 'Boa prática: '), cmd.pratica) : null)
-          : h('section', { class: 'explica' }, h('h3', {}, 'Manual do terminal'), h('p', {}, 'Digite um comando no terminal e a explicação aparece aqui. Comece por ', h('code', {}, 'pwd'), ', ', h('code', {}, 'ls -la'), ' e ', h('code', {}, 'ip -br addr'), '.')),
+          : h('section', { class: 'explica' }, h('h3', {}, 'Manual do terminal'), h('p', {}, 'Digite um comando no terminal e a explicação aparece aqui. Comece por ', h('code', {}, 'pwd'), ', ', h('code', {}, 'ls -la'), ' e ', h('code', {}, 'cat /etc/hosts'), '.')),
         h('h3', {}, 'Todos os comandos'),
         h('ul', { class: 'manual' }, ...(c.manual ?? []).map((x) => h('li', {}, h('code', {}, x.nome), ' ', x.resumo))),
       );
@@ -95,10 +125,30 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
   };
 
   const novaMensagem = (m: Mensagem) => {
-    dinamicas.set(m.id, m);
-    avisar(`Nova mensagem de ${c.personagens?.find((p) => p.id === m.de)?.nome ?? m.de}`, 'ruim');
+    if (e.extras!.some((x) => x.id === m.id)) return;
+    e.extras!.push(m);
+    salvar(e);
+    avisar(`Nova mensagem de ${pessoa(c, m.de).nome}`, 'ruim');
     desenharAbas();
     if (aba === 'mensagens') desenharConteudo();
+  };
+
+  const foraDoEscopo = (alvo: string, motivo: string) => {
+    e.violacoes.push({ alvo, quando: new Date().toISOString() });
+    ultimaViolacao = Date.now();
+    const r = c.reacoes?.foraDoEscopo(alvo, motivo, e.violacoes.length);
+    if (r) novaMensagem({ ...r, id: `${r.id}-${e.violacoes.length}` });
+    salvar(e);
+    desenharPlacar();
+  };
+
+  const reagir = (ev: EventoMundo) => {
+    for (const r of ato?.reacoes ?? []) {
+      if (e.disparadas!.includes(r.id) || !r.quando(ev)) continue;
+      e.disparadas!.push(r.id);
+      // pequena demora: ninguém responde WhatsApp na mesma hora
+      setTimeout(() => novaMensagem(r.mensagem), 2500);
+    }
   };
 
   raiz.append(
@@ -106,10 +156,10 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
       'div',
       { class: 'mesa' },
       h('header', { class: 'topo' },
-        h('h1', {}, 'Escopo Fechado'),
-        h('span', { class: 'caso' }, `${c.nome}, nível ${c.nivel}`),
+        h('h1', {}, 'escopo_fechado'),
+        h('span', { class: 'caso' }, `${c.nome} · ${c.nivel}`),
         placar,
-        h('button', { class: 'botao secundario pequeno', onclick: aoSair }, 'Menu')),
+        h('button', { class: 'botao secundario pequeno', onclick: aoSair }, 'menu')),
       h('div', { class: 'mesa-corpo' },
         h('section', { class: 'lado-terminal' }, carregando, terminalEl),
         h('aside', { class: 'lado-caso' }, abas, conteudo)),
@@ -119,12 +169,16 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
   desenharPlacar();
   desenharAbas();
   desenharConteudo();
+  const chuvaBoot = chuva(canvasChuva, { intensidade: 0.7 });
 
   const term = new Terminal({
     fontFamily: '"JetBrains Mono", "Cascadia Mono", Consolas, monospace',
     fontSize: 15,
     cursorBlink: true,
-    theme: { background: '#0b0d12', foreground: '#e6e6e6', cursor: '#ff5fa2', selectionBackground: '#ff5fa255' },
+    theme: {
+      background: '#000000', foreground: '#c8ffd4', cursor: '#00ff66', selectionBackground: '#00ff6644',
+      green: '#00e05a', brightGreen: '#5dff9a', blue: '#3fbf7f', brightBlue: '#7dffb0', cyan: '#4fe0a0', brightCyan: '#9dffd0',
+    },
     scrollback: 5000,
   });
   const fit = new FitAddon();
@@ -132,9 +186,16 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
   term.open(terminalEl);
   fit.fit();
   new ResizeObserver(() => fit.fit()).observe(terminalEl);
+  term.onSelectionChange(() => {
+    const s = term.getSelection();
+    if (s) navigator.clipboard?.writeText(s).catch(() => {});
+  });
+
+  let ajustarTamanho = () => {};
 
   const aoEvento = (ev: EventoVM) => {
     if (ev.tipo === 'pronto') {
+      chuvaBoot.parar();
       carregando.remove();
       fit.fit();
       setTimeout(() => { ajustarTamanho(); term.focus(); }, 800);
@@ -142,15 +203,17 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     } else if (ev.tipo === 'cmd' && !comandoDoJogo(ev.comando)) {
       e.comandos++;
       ultimoCmd = ev.comando;
-      for (const v of violacoes(ev.comando, c.escopo!)) {
-        e.violacoes.push({ alvo: v.alvo, quando: new Date().toISOString() });
-        const r = c.reacoes?.foraDoEscopo(v.alvo, v.motivo ?? '', e.violacoes.length);
-        if (r) novaMensagem(r);
-        break;
-      }
+      const v = violacoes(ev.comando, c.escopo!)[0];
+      if (v) foraDoEscopo(v.alvo, v.motivo ?? '');
+      reagir({ tipo: 'cmd', comando: ev.comando });
       salvar(e);
       desenharPlacar();
       if (aba === 'manual') desenharConteudo();
+    } else if (ev.tipo === 'http') {
+      const motivo = c.hostsFora?.[ev.host];
+      // o comando já foi acusado; o acesso HTTP só conta se veio por outro caminho
+      if (motivo && Date.now() - ultimaViolacao > 20_000) foraDoEscopo(ev.host, motivo);
+      reagir({ tipo: 'http', host: ev.host, caminho: ev.caminho, agente: ev.agente });
     }
   };
 
@@ -164,11 +227,4 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
   term.onData((d) => vm.digitar(d));
   // Serial não avisa mudança de tamanho; o less e o nano precisam saber.
   ajustarTamanho = () => vm.digitar(` stty rows ${term.rows} cols ${term.cols}; clear\n`);
-}
-
-let ajustarTamanho = () => {};
-
-/** Comandos que o próprio jogo digita (começam com espaço) não contam. */
-export function comandoDoJogo(cmd: string): boolean {
-  return /^\s*stty rows \d+ cols \d+; clear$/.test(cmd);
 }

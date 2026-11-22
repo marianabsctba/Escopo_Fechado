@@ -46,6 +46,46 @@ export interface Comando {
   pratica?: string;
 }
 
+export type Severidade = 'informativa' | 'baixa' | 'media' | 'alta' | 'critica';
+
+export interface Resultado {
+  ok: boolean;
+  /** Explicação mostrada quando não passa. */
+  motivo?: string;
+  /** Evidência expôs dado pessoal sem máscara. */
+  lgpd?: boolean;
+}
+
+export interface Achado {
+  id: string;
+  titulo: string;
+  /** O que a jogadora precisa descobrir e registrar. */
+  objetivo: string;
+  /** Texto de exemplo no campo de evidência. */
+  exemplo: string;
+  dicas: string[];
+  severidade: Severidade;
+  porqueSeveridade: string;
+  recomendacao: string;
+  bonus?: boolean;
+  validar: (evidencia: string) => Promise<Resultado>;
+  /** Mensagem que chega quando o achado é registrado. */
+  aoRegistrar?: Mensagem;
+}
+
+/** Evento da VM visto pelas reações do cenário. */
+export type EventoMundo =
+  | { tipo: 'cmd'; comando: string }
+  | { tipo: 'http'; host: string; caminho: string; agente: string };
+
+export interface Ato {
+  titulo: string;
+  achados: Achado[];
+  /** Reações únicas (cada id dispara uma vez). */
+  reacoes: { id: string; quando: (e: EventoMundo) => boolean; mensagem: Mensagem }[];
+  conclusao: Mensagem[];
+}
+
 export interface Cenario {
   id: string;
   nome: string;
@@ -68,4 +108,7 @@ export interface Cenario {
     foraDoEscopo: (alvo: string, motivo: string, vez: number) => Mensagem;
   };
   manual?: Comando[];
+  ato1?: Ato;
+  /** Hosts do mundo que estão fora do escopo (para os acessos HTTP). */
+  hostsFora?: Record<string, string>;
 }

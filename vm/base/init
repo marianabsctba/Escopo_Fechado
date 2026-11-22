@@ -19,7 +19,7 @@ aviso BOOT
 
 hostname notebook
 ip link set lo up
-modprobe veth 2>/dev/null
+insmod /lib/modules/veth.ko 2>/tmp/insmod.err || aviso "ERRO insmod veth: $(cat /tmp/insmod.err)"
 
 # Usuaria da pentester
 if ! id pentester >/dev/null 2>&1; then
@@ -33,6 +33,9 @@ chown -R pentester:pentester /home/pentester
 # O mundo só sobe quando o cenário estiver completo (arquivo mundo.ativo)
 if [ -x /etc/escopo/mundo.sh ] && [ -e /etc/escopo/mundo.ativo ]; then
   /etc/escopo/mundo.sh > /var/log/mundo.log 2>&1
+  if [ ! -e /run/ef-mundo.pronto ]; then
+    tail -n 25 /var/log/mundo.log | while IFS= read -r l; do aviso "ERRO $l"; done
+  fi
 fi
 aviso PRONTO
 

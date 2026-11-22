@@ -22,7 +22,7 @@ describe.each(disponiveis.map((c) => [c.id, c] as const))('cenário %s', (_id, c
   });
 
   it('textos sem travessão', () => {
-    expect(JSON.stringify(c)).not.toMatch(/[–—]/);
+    expect(JSON.stringify(c)).not.toMatch(/[\u2013\u2014]/);
   });
 
   it('o contrato avança na ordem até ficar pronto', () => {

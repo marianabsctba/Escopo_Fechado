@@ -42,20 +42,17 @@ cp "$ROOT/boot/vmlinuz-virt" "$SAIDA/bzimage"
 # Enxuga: so os modulos de que o mundo precisa
 KVER=$(ls "$ROOT/lib/modules")
 MODS="$ROOT/lib/modules/$KVER"
-mkdir -p "$TRAB/mods-manter"
-rm -rf "$TRAB/mods-manter"/*
-for m in veth; do
-  f=$(find "$MODS" -name "$m.ko*" | head -1)
-  [ -n "$f" ] && install -D "$f" "$TRAB/mods-manter/${f#$MODS/}"
-done
-rm -rf "$MODS/kernel"
-cp -r "$TRAB/mods-manter/kernel" "$MODS/" 2>/dev/null || true
-depmod -b "$ROOT" "$KVER" 2>/dev/null || true
+find "$MODS/kernel" -type f ! -name 'veth.ko*' -delete
+find "$MODS/kernel" -type d -empty -delete
+test -n "$(find "$MODS/kernel" -name 'veth.ko*')" || { echo "veth.ko sumiu do kernel" >&2; exit 1; }
+# carregado com insmod no init (o depmod do host nao gera indice valido para o Alpine)
+find "$MODS/kernel" -name "veth.ko.gz" -exec gunzip -f {} +
+cp "$(find "$MODS/kernel" -name veth.ko)" "$ROOT/lib/modules/veth.ko"
 rm -rf "$ROOT/boot" "$ROOT/usr/share/man" "$ROOT/usr/share/doc" "$ROOT/usr/share/info" \
   "$ROOT/var/cache/apk"/* "$ROOT/lib/firmware" "$ROOT/usr/lib/python3"*/test \
   "$ROOT/usr/lib/python3"*/idlelib "$ROOT/usr/lib/python3"*/tkinter \
   "$ROOT/usr/lib/python3"*/ensurepip "$ROOT/usr/lib/python3"*/lib2to3
-find "$ROOT" -name '__pycache__' -prune -exec rm -rf {} +
+# mantém os .pyc do Alpine (python3-pycache-pyc0): sem eles o boot compila a stdlib toda vez
 
 # Base comum (init, usuario, vigia) e depois o mundo do cenario
 # --no-preserve: arquivos vindos do disco do Windows chegam com modo 777
@@ -63,9 +60,10 @@ cp -r --no-preserve=mode,ownership "$REPO/vm/base/." "$ROOT/"
 cp -r --no-preserve=mode,ownership "$REPO/vm/$CENARIO/." "$ROOT/"
 chmod 755 "$ROOT/init" "$ROOT/usr/local/sbin/"* "$ROOT/etc/escopo/"*.sh 2>/dev/null || true
 
-
-
-
+# Artefatos gerados do mundo (histórico git, planilhas, chaves)
+if [ -f "$AQUI/gerar-$CENARIO.py" ]; then
+  python3 "$AQUI/gerar-$CENARIO.py" "$ROOT"
+fi
 # initramfs
 ( cd "$ROOT" && find . -print0 | cpio --null -o -H newc --quiet ) | gzip -9 > "$SAIDA/initrd"
 ls -la "$SAIDA"

@@ -1,0 +1,6 @@
+127.0.0.1	localhost
+::1	localhost
+# DNS publico (como a internet resolve esses nomes)
+203.0.113.10	www.boinanuvem.exemplo boinanuvem.exemplo
+198.51.100.20	painel.hostbacana.exemplo hostbacana.exemplo www.hostbacana.exemplo
+198.51.100.77	www.frigorificoparaiso.exemplo frigorificoparaiso.exemplo

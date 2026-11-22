@@ -1,0 +1,4 @@
+body { font-family: Verdana, sans-serif; background: #fdf6e3; color: #333; max-width: 760px; margin: 0 auto; padding: 1em; }
+header { background: #8b3a1a; color: #fff; padding: 1em; border-radius: 8px; }
+header a { color: #ffd; }
+footer { font-size: .8em; color: #777; margin-top: 3em; }

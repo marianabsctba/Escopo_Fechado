@@ -29,8 +29,8 @@ jobs:
         run: |
           sudo apt-get install -y -qq cpio kmod >/dev/null
           sudo bash ferramentas/imagem/construir.sh boi_na_nuvem "$PWD/public/vm/boi_na_nuvem"
-      - name: A imagem boota e abre o shell
-        run: node ferramentas/testar-vm.mjs boi_na_nuvem
+      - name: Robô joga o Ato 1 dentro da VM
+        run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato1.json
         timeout-minutes: 8
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3

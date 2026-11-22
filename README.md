@@ -17,13 +17,17 @@ Cada comando digitado chega ao jogo por uma segunda porta serial. É assim que o
 - **Escopo:** atacar algo que não está no contrato custa pontos e rende e-mail do jurídico. Atacar o concorrente do cliente é crime (art. 154-A do Código Penal), e o jogo diz isso.
 - **Janela de testes, contato de emergência, incidente real:** tudo cobrado no checklist antes de assinar.
 - **LGPD:** dado pessoal entra no relatório só como prova mínima e mascarado.
-- **Evidência:** cada achado vai para o caderno com comando, horário e hash.
+- **Evidência:** cada achado vai para o caderno com a saída do terminal e a severidade, e o jogo confere se ela prova mesmo o achado.
+
+## Ato 1: reconhecimento
+
+Nmap na faixa do contrato, robots.txt, repositório `.git` publicado junto com o site (com a senha que o Jefferson "apagou"), backup com planilha de clientes e metadados de foto. Tudo com ferramenta de verdade, e o robô `ferramentas/roteiros/boi_ato1.json` joga o ato inteiro dentro da VM a cada publicação.
 
 ## Clientes (níveis)
 
 | nível | cliente | situação |
 |---|---|---|
-| Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | Ato 0 (contrato) pronto; reconhecimento em construção |
+| Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | Ato 0 (contrato) e Ato 1 (reconhecimento) prontos; sistema de pedidos em construção |
 | Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná | em breve |
 | Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão | em breve |
 

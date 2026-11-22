@@ -7,7 +7,7 @@ export TERM=xterm-256color
 export EDITOR=nano
 HISTSIZE=5000
 HISTCONTROL=
-PS1='\[\e[38;5;205m\]pentester\[\e[0m\]@\[\e[38;5;117m\]\h\[\e[0m\]:\[\e[1m\]\w\[\e[0m\]\$ '
+PS1='\[\e[38;5;46m\]pentester\[\e[0m\]@\[\e[38;5;120m\]\h\[\e[0m\]:\[\e[1;38;5;157m\]\w\[\e[0m\]\$ '
 
 __ef_ultimo=0
 __ef_cmd() {

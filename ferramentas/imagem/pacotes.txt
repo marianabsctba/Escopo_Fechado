@@ -27,3 +27,4 @@ jq
 sudo
 shadow
 util-linux-misc
+python3-pycache-pyc0

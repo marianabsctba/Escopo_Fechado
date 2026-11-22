@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin-jefferson/
+Disallow: /backup-antigo/
+# Disallow: /.git/
+# (comentei a linha do .git pq o google tava reclamando - Jefferson)

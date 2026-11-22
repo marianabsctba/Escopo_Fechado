@@ -1,5 +1,10 @@
 // Progresso salvo no navegador. A VM não é salva: ao recarregar ela boota de novo.
-import type { Comando } from './tipos';
+import type { Comando, Mensagem, Severidade } from './tipos';
+
+export interface Registro {
+  quando: string;
+  severidade: Severidade;
+}
 
 export interface Estado {
   versao: 1;
@@ -12,12 +17,35 @@ export interface Estado {
   lidas: string[];
   violacoes: { alvo: string; quando: string }[];
   comandos: number;
+  /** Mensagens que chegaram durante a mesa (reações), na ordem. */
+  extras?: Mensagem[];
+  /** Ids de reações que já dispararam. */
+  disparadas?: string[];
+  achados?: Record<string, Registro>;
+  /** Achado id -> quantas dicas foram abertas. */
+  dicas?: Record<string, number>;
+  /** Evidências recusadas por expor dado pessoal. */
+  lgpd?: number;
+  ato1Concluido?: boolean;
 }
 
 const CHAVE = 'escopo-fechado:v1';
 
 export function novoEstado(cenario: string): Estado {
-  return { versao: 1, cenario, etapa: 'contrato', tentativas: {}, mensagens: [], lidas: [], violacoes: [], comandos: 0 };
+  return {
+    versao: 1, cenario, etapa: 'contrato', tentativas: {}, mensagens: [], lidas: [], violacoes: [], comandos: 0,
+    extras: [], disparadas: [], achados: {}, dicas: {}, lgpd: 0,
+  };
+}
+
+/** Completa campos que estados salvos por versões anteriores não têm. */
+export function completar(e: Estado): Estado {
+  e.extras ??= [];
+  e.disparadas ??= [];
+  e.achados ??= {};
+  e.dicas ??= {};
+  e.lgpd ??= 0;
+  return e;
 }
 
 export function carregar(): Estado | null {
@@ -25,7 +53,7 @@ export function carregar(): Estado | null {
     const bruto = localStorage.getItem(CHAVE);
     if (!bruto) return null;
     const e = JSON.parse(bruto) as Estado;
-    return e.versao === 1 ? e : null;
+    return e.versao === 1 ? completar(e) : null;
   } catch {
     return null;
   }
@@ -57,6 +85,11 @@ export function prudencia(e: Estado): number {
 export function pontosEscopo(e: Estado): number {
   const n = e.violacoes.length;
   return Math.max(0, 100 - (n === 0 ? 0 : 20 + (n - 1) * 30));
+}
+
+/** Pontos de LGPD: cada evidência com dado pessoal exposto custa 25. */
+export function pontosLgpd(e: Estado): number {
+  return Math.max(0, 100 - (e.lgpd ?? 0) * 25);
 }
 
 /** Acha a entrada do manual para um comando digitado. */

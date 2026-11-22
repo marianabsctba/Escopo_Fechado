@@ -3,6 +3,7 @@
 // de documentação da RFC 5737).
 import type { Cenario, Mensagem } from '../../motor/tipos';
 import { manualBasico } from '../manual';
+import { ato1 } from './ato1';
 
 const foraDoEscopo = (alvo: string, motivo: string, vez: number): Mensagem => {
   if (vez === 1) {
@@ -54,11 +55,11 @@ export const boiNaNuvem: Cenario = {
   disponivel: true,
 
   personagens: [
-    { id: 'dirceu', nome: 'Seu Dirceu', papel: 'Dono do Boi na Nuvem', cor: '#c9853f' },
-    { id: 'jefferson', nome: 'Jefferson do TI', papel: 'TI (e sobrinho do dono)', cor: '#4fa3e0' },
-    { id: 'neide', nome: 'Dona Neide', papel: 'Contabilidade, 30 anos de casa', cor: '#b97fd6' },
-    { id: 'patricia', nome: 'Dra. Patrícia', papel: 'Jurídico e Compliance', cor: '#5fbf8f' },
-    { id: 'tania', nome: 'Tânia', papel: 'Sua sócia na Pente Fino Segurança', cor: '#ff5fa2' },
+    { id: 'dirceu', nome: 'Seu Dirceu', papel: 'Dono do Boi na Nuvem', cor: '#9dffbf' },
+    { id: 'jefferson', nome: 'Jefferson do TI', papel: 'TI (e sobrinho do dono)', cor: '#4fe0a0' },
+    { id: 'neide', nome: 'Dona Neide', papel: 'Contabilidade, 30 anos de casa', cor: '#c8ff9d' },
+    { id: 'patricia', nome: 'Dra. Patrícia', papel: 'Jurídico e Compliance', cor: '#00c853' },
+    { id: 'tania', nome: 'Tânia', papel: 'Sua sócia na Pente Fino Segurança', cor: '#00ff66' },
   ],
 
   escopo: {
@@ -302,4 +303,9 @@ export const boiNaNuvem: Cenario = {
 
   reacoes: { foraDoEscopo },
   manual: manualBasico,
+  ato1,
+  hostsFora: {
+    hostbacana: 'A HostBacana é a hospedagem do site e não assinou o contrato.',
+    paraiso: 'O Frigorífico Paraíso é concorrente do cliente. Sem autorização do dono, é crime (art. 154-A do Código Penal).',
+  },
 };
