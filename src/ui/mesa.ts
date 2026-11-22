@@ -2,7 +2,7 @@
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import type { Achado, Cenario, EventoMundo, Mensagem, Severidade } from '../motor/tipos';
+import type { Achado, Cenario, EventoMundo, Mensagem, Severidade, Status } from '../motor/tipos';
 import { type Estado, salvar, prudencia, pontosEscopo, pontosLgpd, explicar } from '../motor/estado';
 import { violacoes } from '../motor/escopo';
 import { MaquinaVM, type EventoVM } from '../motor/vm';
@@ -21,7 +21,9 @@ export function comandoDoJogo(cmd: string): boolean {
 
 export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () => void, aoRelatorio: () => void): void {
   limpar(raiz);
-  const ato = c.ato1;
+  const reteste = e.fase === 'reteste' && !!c.ato3;
+  const ato = reteste ? c.ato3 : c.ato1;
+  const concluido = () => (reteste ? !!e.ato3Concluido : !!e.ato1Concluido);
   const todas = (): Mensagem[] => [...(c.ato0?.assinado ?? []), ...(e.extras ?? [])];
   let aba: Aba = ato ? 'caderno' : 'manual';
   let aberta: string | null = null;
@@ -67,19 +69,38 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     }
   };
 
-  const registrar = (a: Achado, sev: Severidade) => {
-    (e.achados ??= {})[a.id] = { quando: new Date().toISOString(), severidade: sev };
-    avisar(`Achado registrado: ${a.titulo}`);
+  const registrar = (a: Achado, valor: Severidade | Status) => {
+    (e.achados ??= {})[a.id] = reteste
+      ? { quando: new Date().toISOString(), status: valor as Status }
+      : { quando: new Date().toISOString(), severidade: valor as Severidade };
+    avisar(`Registrado: ${a.titulo}`);
     if (a.aoRegistrar) novaMensagem(a.aoRegistrar);
     const obrig = ato!.achados.filter((x) => !x.bonus);
-    if (!e.ato1Concluido && obrig.every((x) => e.achados?.[x.id])) {
-      e.ato1Concluido = true;
+    if (!concluido() && obrig.every((x) => e.achados?.[x.id])) {
+      if (reteste) e.ato3Concluido = true; else e.ato1Concluido = true;
       for (const m of ato!.conclusao) novaMensagem(m);
     }
     achadoAberto = ato!.achados.find((x) => !e.achados?.[x.id])?.id ?? null;
     salvar(e);
     desenharPlacar();
     desenharConteudo();
+  };
+
+  const fimDoAto = (): HTMLElement | string => {
+    if (!reteste && e.ato1Concluido && c.ato2) {
+      return h('div', { class: 'fim-ato' }, h('h3', {}, 'Ato 1 concluído'),
+        h('p', {}, 'Reconhecimento fechado. Agora vem a parte que o cliente paga de verdade: o relatório.'),
+        h('button', { class: 'botao', onclick: aoRelatorio }, e.relatorio?.concluido ? '> rever o relatório (Ato 2)' : '> escrever o relatório (Ato 2)'));
+    }
+    if (reteste && e.ato3Concluido) {
+      return h('div', { class: 'fim-ato fim-cliente' },
+        h('p', { class: 'sobretitulo' }, 'Boi na Nuvem: trabalho encerrado'),
+        h('h3', {}, 'Contrato cumprido'),
+        h('p', {}, `Nota do relatório: ${e.relatorio?.nota ?? '?'} · escopo ${pontosEscopo(e)} · lgpd ${pontosLgpd(e)} · prudência ${prudencia(e)}`),
+        h('p', {}, 'Você fez o ciclo inteiro de um pentest: contrato, reconhecimento, relatório, reunião e reteste. O próximo cliente, a cooperativa Pinhão Forte, está em negociação.'),
+        h('button', { class: 'botao secundario', onclick: aoSair }, 'voltar à capa'));
+    }
+    return '';
   };
 
   const desenharConteudo = () => {
@@ -91,7 +112,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
           (a) => { (e.dicas ??= {})[a.id] = (e.dicas[a.id] ?? 0) + 1; salvar(e); desenharConteudo(); },
           registrar,
           () => { e.lgpd = (e.lgpd ?? 0) + 1; salvar(e); desenharPlacar(); avisar('Evidência com CPF inteiro. Prova mínima é mascarada.', 'ruim'); }),
-        e.ato1Concluido && c.ato2 ? h('div', { class: 'fim-ato' }, h('h3', {}, 'Ato 1 concluído'), h('p', {}, 'Reconhecimento fechado. Agora vem a parte que o cliente paga de verdade: o relatório.'), h('button', { class: 'botao', onclick: aoRelatorio }, '> escrever o relatório (Ato 2)')) : '',
+        fimDoAto(),
         h('p', { class: 'dica-copia' }, 'Dica: selecionar texto no terminal já copia. Cole aqui com Ctrl+V.'),
       );
     } else if (aba === 'mensagens') {
@@ -170,6 +191,8 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
   desenharAbas();
   desenharConteudo();
   const chuvaBoot = chuva(canvasChuva, { intensidade: 0.7 });
+  // mensagens de abertura do ato (chegam uma vez)
+  for (const m of ato?.abertura ?? []) setTimeout(() => novaMensagem(m), 1500);
 
   const term = new Terminal({
     fontFamily: '"JetBrains Mono", "Cascadia Mono", Consolas, monospace',
@@ -223,6 +246,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
     aoProgresso: (f) => { barra.style.width = `${Math.round(f * 100)}%`; },
     aoTerminal: (b) => term.write(b),
     aoEvento,
+    fase: reteste ? 'reteste' : 'teste',
   });
   term.onData((d) => vm.digitar(d));
   // Serial não avisa mudança de tamanho; o less e o nano precisam saber.

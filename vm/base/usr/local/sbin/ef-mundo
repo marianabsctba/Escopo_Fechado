@@ -42,6 +42,8 @@ def fabricar_handler(cfg):
     negar = tuple(cfg.get("negar", []))
     app = carregar_app(cfg["app"]) if cfg.get("app") else None
     nome_servidor = cfg.get("server", "Apache")
+    # bloqueio só do caminho exato (o tipo de "correção" que esquece o resto)
+    negar_exato = set(cfg.get("negarExato", []))
 
     class Handler(SimpleHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -103,7 +105,7 @@ def fabricar_handler(cfg):
                 n = int(self.headers.get("Content-Length") or 0)
                 corpo = self.rfile.read(n) if n > 0 else b""
             try:
-                if any(caminho.startswith(p) for p in negar):
+                if caminho in negar_exato or any(caminho.startswith(p) for p in negar):
                     self.send_error(403)
                     return
                 if app is not None:

@@ -28,6 +28,8 @@ export function lerLinhaCanal(linha: string): EventoVM | null {
 
 export interface OpcoesVM {
   cenario: string;
+  /** Fase do mundo (teste ou reteste), passada ao kernel. */
+  fase?: string;
   aoProgresso?: (fracao: number) => void;
   aoTerminal: (bytes: Uint8Array) => void;
   aoEvento: (e: EventoVM) => void;
@@ -46,7 +48,7 @@ export class MaquinaVM {
       vga_bios: { url: `${base}v86/vgabios.bin` },
       bzimage: { url: `${base}vm/${op.cenario}/bzimage` },
       initrd: { url: `${base}vm/${op.cenario}/initrd` },
-      cmdline: 'console=ttyS0 quiet loglevel=3 tsc=reliable mitigations=off random.trust_cpu=on',
+      cmdline: `console=ttyS0 quiet loglevel=3 tsc=reliable mitigations=off random.trust_cpu=on escopo.fase=${op.fase ?? 'teste'}`,
       memory_size: 512 * 1024 * 1024,
       vga_memory_size: 2 * 1024 * 1024,
       uart1: true,

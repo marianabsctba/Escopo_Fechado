@@ -1,0 +1,26 @@
+[
+  {
+    "host": "www", "ip": "203.0.113.10", "porta": 80,
+    "raiz": "/srv/www/html", "server": "Apache/2.4.29 (Ubuntu)",
+    "listar": [],
+    "negar": ["/admin-jefferson/"],
+    "negarExato": ["/.git/", "/.git", "/backup-antigo/", "/backup-antigo"]
+  },
+  {
+    "host": "pedidos", "ip": "203.0.113.12", "porta": 8080,
+    "raiz": "/srv/pedidos/html", "server": "Apache-Coyote/1.1",
+    "app": "/srv/pedidos/app.py"
+  },
+  {
+    "host": "hostbacana", "ip": "198.51.100.20", "porta": 80,
+    "raiz": "/srv/hostbacana/html", "server": "nginx"
+  },
+  {
+    "host": "hostbacana", "ip": "198.51.100.20", "porta": 2083,
+    "raiz": "/srv/hostbacana/painel", "server": "cpsrvd"
+  },
+  {
+    "host": "paraiso", "ip": "198.51.100.77", "porta": 80,
+    "raiz": "/srv/paraiso/html", "server": "Microsoft-IIS/8.5"
+  }
+]

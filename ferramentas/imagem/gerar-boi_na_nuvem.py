@@ -146,6 +146,13 @@ def foto():
     os.makedirs(os.path.join(WWW, "img"), exist_ok=True)
     with open(os.path.join(WWW, "img/festa-neide.png"), "wb") as f:
         f.write(png)
+    # Reteste: a mesma foto, republicada sem metadados (essa o Jefferson acertou)
+    limpa = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+    limpa += chunk(b"IDAT", zlib.compress(b"".join(px), 9)) + chunk(b"IEND", b"")
+    reteste = os.path.join(ROOT, "srv/www/reteste")
+    os.makedirs(reteste, exist_ok=True)
+    with open(os.path.join(reteste, "festa-neide.png"), "wb") as f:
+        f.write(limpa)
 
 
 def chaves_ssh():

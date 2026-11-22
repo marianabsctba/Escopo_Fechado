@@ -33,7 +33,15 @@ mkdir -p /run/sshd
 ip netns exec www /usr/sbin/sshd -f /etc/escopo/sshd_www.conf
 
 # Todos os servidores web num processo so (setns por socket)
-python3 -B /usr/local/sbin/ef-mundo /etc/escopo/servicos.json &
+# Fase do mundo: "reteste" sobe o site depois das correções do Jefferson
+FASE=$(sed -n 's/.*escopo\.fase=\([a-z]*\).*/\1/p' /proc/cmdline)
+SERVICOS=/etc/escopo/servicos.json
+if [ "$FASE" = "reteste" ]; then
+  cp /srv/www/reteste/robots.txt /srv/www/html/robots.txt
+  cp /srv/www/reteste/festa-neide.png /srv/www/html/img/festa-neide.png
+  SERVICOS=/etc/escopo/servicos-reteste.json
+fi
+python3 -B /usr/local/sbin/ef-mundo "$SERVICOS" &
 # espera os sockets subirem
 i=0
 while [ $i -lt 100 ] && [ ! -e /run/ef-mundo.pronto ]; do sleep 0.2; i=$((i+1)); done

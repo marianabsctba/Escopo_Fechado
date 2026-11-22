@@ -48,6 +48,9 @@ export interface Comando {
 
 export type Severidade = 'informativa' | 'baixa' | 'media' | 'alta' | 'critica';
 
+/** Situação de um achado no reteste. */
+export type Status = 'corrigido' | 'parcial' | 'nao';
+
 export interface Resultado {
   ok: boolean;
   /** Explicação mostrada quando não passa. */
@@ -68,6 +71,8 @@ export interface Achado {
   porqueSeveridade: string;
   recomendacao: string;
   bonus?: boolean;
+  /** No reteste: a situação que a evidência deve mostrar. */
+  status?: Status;
   validar: (evidencia: string) => Promise<Resultado>;
   /** Mensagem que chega quando o achado é registrado. */
   aoRegistrar?: Mensagem;
@@ -80,6 +85,10 @@ export type EventoMundo =
 
 export interface Ato {
   titulo: string;
+  /** reteste: o caderno pede status em vez de severidade. */
+  modo?: 'teste' | 'reteste';
+  /** Mensagens que chegam quando o ato começa. */
+  abertura?: Mensagem[];
   achados: Achado[];
   /** Reações únicas (cada id dispara uma vez). */
   reacoes: { id: string; quando: (e: EventoMundo) => boolean; mensagem: Mensagem }[];

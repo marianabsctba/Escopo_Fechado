@@ -32,6 +32,9 @@ jobs:
       - name: Robô joga o Ato 1 dentro da VM
         run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato1.json
         timeout-minutes: 8
+      - name: Robô joga o reteste (Ato 3) dentro da VM
+        run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato3.json reteste
+        timeout-minutes: 8
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

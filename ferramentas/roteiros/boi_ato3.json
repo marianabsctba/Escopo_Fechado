@@ -1,0 +1,10 @@
+[
+  { "cmd": "curl -s -o /dev/null -w '%{http_code}\\n' http://www.boinanuvem.exemplo/.git/", "espera": "403" },
+  { "cmd": "curl -s http://www.boinanuvem.exemplo/.git/HEAD", "espera": "ref: refs/heads/main" },
+  { "cmd": "curl -s http://www.boinanuvem.exemplo/.git/config", "espera": "repositoryformatversion" },
+  { "cmd": "curl -s -o /dev/null -w '%{http_code}\\n' http://www.boinanuvem.exemplo/backup-antigo/", "espera": "403" },
+  { "cmd": "curl -s -o /tmp/c.csv -w '%{http_code}\\n' http://www.boinanuvem.exemplo/backup-antigo/clientes_export_2021.csv", "espera": "200" },
+  { "cmd": "sha256sum /tmp/c.csv", "espera": "eccc0182d39229088f65404d3aa693f5225b9bb2ed359bca8aa33e9ce8e19cff" },
+  { "cmd": "curl -s http://www.boinanuvem.exemplo/robots.txt", "espera": "tirei o backup daqui" },
+  { "cmd": "curl -s http://www.boinanuvem.exemplo/img/festa-neide.png -o /tmp/f.png && file /tmp/f.png && strings /tmp/f.png | grep -ic senha", "espera": "PNG image data, 240 x 160[\\s\\S]*\\s0\\s" }
+]

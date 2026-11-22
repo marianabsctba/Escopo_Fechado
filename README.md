@@ -19,15 +19,20 @@ Cada comando digitado chega ao jogo por uma segunda porta serial. É assim que o
 - **LGPD:** dado pessoal entra no relatório só como prova mínima e mascarado.
 - **Evidência:** cada achado vai para o caderno com a saída do terminal e a severidade, e o jogo confere se ela prova mesmo o achado.
 
-## Ato 1: reconhecimento
+## Os atos do Boi na Nuvem
 
-Nmap na faixa do contrato, robots.txt, repositório `.git` publicado junto com o site (com a senha que o Jefferson "apagou"), backup com planilha de clientes e metadados de foto. Tudo com ferramenta de verdade, e o robô `ferramentas/roteiros/boi_ato1.json` joga o ato inteiro dentro da VM a cada publicação.
+- **Ato 0, o contrato:** Regras de Engajamento, checklist de escopo e o pedido do dono para atacar o concorrente.
+- **Ato 1, reconhecimento:** nmap na faixa do contrato, robots.txt, repositório `.git` publicado junto com o site (com a senha que o Jefferson "apagou"), backup com planilha de clientes e metadados de foto. Tudo com ferramenta de verdade.
+- **Ato 2, o relatório:** severidade com a calculadora CVSS 3.1 oficial, passos para reproduzir, evidência sem vazar dado, recomendação, sumário executivo sem jargão e a reunião de entrega com o cliente.
+- **Ato 3, o reteste:** o TI jura que corrigiu tudo. A VM sobe o mundo "corrigido" e você prova, com curl e sha256sum, o que foi consertado e o que só foi escondido.
+
+A cada publicação, robôs jogam o Ato 1 e o reteste dentro da VM (`ferramentas/roteiros/`). Se algo quebrar, o site não é publicado.
 
 ## Clientes (níveis)
 
 | nível | cliente | situação |
 |---|---|---|
-| Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | Ato 0 (contrato) e Ato 1 (reconhecimento) prontos; sistema de pedidos em construção |
+| Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | completo: contrato, reconhecimento, relatório e reteste |
 | Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná | em breve |
 | Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão | em breve |
 

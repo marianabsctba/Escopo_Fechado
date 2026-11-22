@@ -1,6 +1,6 @@
 // Boota a VM de um cenario no Node (sem navegador), roda comandos no
 // terminal e mostra o que chega pelas duas seriais.
-// Uso: node ferramentas/testar-vm.mjs [cenario] [roteiro.json]
+// Uso: node ferramentas/testar-vm.mjs [cenario] [roteiro.json] [fase: teste ou reteste]
 // O roteiro é uma lista de { "cmd": "...", "espera": "regex opcional" };
 // se a saída de um comando não casar com "espera", o teste falha.
 import { V86 } from "v86";
@@ -9,6 +9,7 @@ import path from "node:path";
 
 const raiz = path.resolve(import.meta.dirname, "..");
 const cenario = process.argv[2] ?? "boi_na_nuvem";
+const fase = process.argv[4] ?? "teste";
 const passos = process.argv[3]
   ? JSON.parse(fs.readFileSync(process.argv[3], "utf8"))
   : [{ cmd: "id", espera: "uid=1000\\(pentester\\)" }, { cmd: "uname -a" }, { cmd: "ip -br addr" }];
@@ -26,7 +27,7 @@ const emu = new V86({
   vga_bios: { url: path.join(raiz, "public/v86/vgabios.bin") },
   bzimage: { url: path.join(vm, "bzimage") },
   initrd: { url: path.join(vm, "initrd") },
-  cmdline: "console=ttyS0 quiet loglevel=3 tsc=reliable mitigations=off random.trust_cpu=on",
+  cmdline: `console=ttyS0 quiet loglevel=3 tsc=reliable mitigations=off random.trust_cpu=on escopo.fase=${fase}`,
   memory_size: 512 * 1024 * 1024,
   uart1: true,
   autostart: true,
