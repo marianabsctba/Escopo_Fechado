@@ -125,7 +125,7 @@ export interface AtoRelatorio {
 export interface Cenario {
   id: string;
   nome: string;
-  nivel: 'iniciante' | 'intermediario' | 'expert';
+  nivel: 'iniciante' | 'intermediario' | 'expert' | 'extra';
   local: string;
   chamada: string;
   disponivel: boolean;

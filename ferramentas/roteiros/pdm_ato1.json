@@ -1,0 +1,54 @@
+[
+  {
+    "cmd": "ls -la ~/.ssh && ls /srv/bilheteria 2>&1 | head -1",
+    "espera": "id_auditor"
+  },
+  {
+    "cmd": "nmap -sT -p 22,80,443 10.30.0.0/24",
+    "espera": "10\\.30\\.0\\.15[\\s\\S]*22/tcp +open"
+  },
+  {
+    "cmd": "ssh -o BatchMode=yes bilheteria 'hostname; id'",
+    "espera": "bilheteria[\\s\\S]*uid=2001\\(auditor\\)[\\s\\S]*adm"
+  },
+  {
+    "cmd": "ssh bilheteria 'ps -ef'",
+    "espera": "/tmp/\\.x/kworkerd"
+  },
+  {
+    "cmd": "ssh bilheteria 'ps -ef' | grep -c pentester",
+    "espera": "\\s0\\s"
+  },
+  {
+    "cmd": "ssh bilheteria 'ss -tn'",
+    "espera": "ESTAB[\\s\\S]*198\\.51\\.100\\.66:3333"
+  },
+  {
+    "cmd": "ssh bilheteria 'cat /etc/crontabs/admin; cat /home/admin/.ssh/authorized_keys'",
+    "espera": "kworkerd[\\s\\S]*x@vps"
+  },
+  {
+    "cmd": "ssh bilheteria 'grep :0:0: /etc/passwd'",
+    "espera": "suporte:x:0:0"
+  },
+  {
+    "cmd": "ssh bilheteria 'grep -c \"Failed password\" /var/log/auth.log; grep Accepted /var/log/auth.log | grep 203.0.113.66'",
+    "espera": "46[\\s\\S]*Nov 19 03:42:07[\\s\\S]*203\\.0\\.113\\.66"
+  },
+  {
+    "cmd": "ssh bilheteria 'cat /home/admin/.bash_history' | grep -E 'socios|198.51'",
+    "espera": "socios\\.sql[\\s\\S]*198\\.51\\.100\\.66/up"
+  },
+  {
+    "cmd": "ssh bilheteria 'sha256sum /tmp/.x/kworkerd; ls -la --time-style=full-iso /tmp/.x/'",
+    "espera": "[0-9a-f]{64}  /tmp/\\.x/kworkerd"
+  },
+  {
+    "cmd": "ssh bilheteria 'cat /var/backups/socios.sql' 2>&1 | grep -c 'Permission denied'",
+    "espera": "\\s1\\s"
+  },
+  {
+    "cmd": "ssh bilheteria 'touch /etc/teste' 2>&1",
+    "espera": "Permission denied|Read-only"
+  }
+]

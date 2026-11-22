@@ -1,0 +1,3 @@
+# unshare e su-exec para o servidor com namespaces próprios
+util-linux-misc
+su-exec

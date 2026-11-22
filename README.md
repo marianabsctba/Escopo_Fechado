@@ -36,12 +36,17 @@ Teste não anunciado: o SOC do cliente não sabe, e varredura barulhenta abre ch
 
 Teste interno com conta de servidor comum, num domínio montado em 2009. Um diretório no formato do Active Directory (OpenLDAP com esquema próprio: `sAMAccountName`, `memberOf`, `pwdLastSet`...) e um Samba de verdade. Com `ldapsearch`, `smbclient` e scripts do `nmap`, sem quebrar senha nenhuma, chega-se a duas credenciais de administrador do domínio só lendo o que estava aberto. A Câmara Municipal está na mesma rede e fora do escopo, o prefeito quer usar o relatório na campanha e a LGPD encontra a Lei de Acesso à Informação na folha de pagamento.
 
+## Pé de Moleque F.C. (extra expert)
+
+Era uma revisão de configuração com acesso SSH de auditor, na semana da final do estadual. Alguém chegou antes. O jogo muda de regra: parar o teste, comunicar a encarregada, seguir só com aditivo assinado e fazer triagem forense somente leitura dentro do servidor (processo suspeito, conexão para fora, persistência, conta com UID 0, linha do tempo no auth.log, indício de vazamento da base de sócios). O servidor roda com hostname, processos e sistema de arquivos próprios (namespaces e chroot do SSH). Revidar contra o servidor do invasor custa pontos. Depois vêm o relatório de incidente, com prazo da ANPD e pedido de extorsão, e a verificação pós-erradicação.
+
 ## Clientes (níveis)
 
 | nível | cliente | situação |
 |---|---|---|
 | Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | completo: contrato, reconhecimento, relatório e reteste |
 | Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná com app feito por fábrica terceirizada e SOC vigiando | completo: certificado TLS, documentação de API, cookie, erro verboso, homologação com dado real, relatório e reteste |
+| Extra expert | **Pé de Moleque F.C.**, clube de futebol na semana da final | completo: o pentest vira resposta a incidente, relatório de incidente e verificação pós-erradicação |
 | Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão em ano eleitoral | completo: auditoria interna do domínio, relatório e reteste |
 
 Empresas, pessoas, domínios (`.exemplo`) e endereços (faixas de documentação da RFC 5737) são fictícios.

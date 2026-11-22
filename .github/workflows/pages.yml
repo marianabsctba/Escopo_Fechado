@@ -31,6 +31,7 @@ jobs:
           sudo bash ferramentas/imagem/construir.sh boi_na_nuvem "$PWD/public/vm/boi_na_nuvem"
           sudo bash ferramentas/imagem/construir.sh pinhao_forte "$PWD/public/vm/pinhao_forte"
           sudo bash ferramentas/imagem/construir.sh bom_sossego "$PWD/public/vm/bom_sossego"
+          sudo bash ferramentas/imagem/construir.sh pe_de_moleque "$PWD/public/vm/pe_de_moleque"
       - name: "Boi na Nuvem: robô joga o Ato 1 dentro da VM"
         run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato1.json
         timeout-minutes: 8
@@ -49,6 +50,12 @@ jobs:
       - name: "Bom Sossego: robô joga o reteste"
         run: node ferramentas/testar-vm.mjs bom_sossego ferramentas/roteiros/bossego_ato3.json reteste
         timeout-minutes: 10
+      - name: "Pé de Moleque: robô faz a triagem do incidente na VM"
+        run: node ferramentas/testar-vm.mjs pe_de_moleque ferramentas/roteiros/pdm_ato1.json
+        timeout-minutes: 10
+      - name: "Pé de Moleque: robô verifica a erradicação"
+        run: node ferramentas/testar-vm.mjs pe_de_moleque ferramentas/roteiros/pdm_ato3.json reteste
+        timeout-minutes: 8
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

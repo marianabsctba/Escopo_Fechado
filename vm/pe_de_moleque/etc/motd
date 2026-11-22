@@ -1,0 +1,8 @@
+
+  Notebook de teste da Pente Fino Segurança
+  VPN do Pé de Moleque Futebol Clube
+
+  Escopo: 10.30.0.0/24 e pedemoleque.exemplo
+  Acesso de auditor (revisão de configuração, somente leitura):
+    ssh -i ~/.ssh/id_auditor auditor@10.30.0.15
+

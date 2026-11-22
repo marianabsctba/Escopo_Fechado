@@ -208,6 +208,7 @@ const MESA_POR_CLIENTE: Record<string, string> = {
   boi_na_nuvem: 'pasto_na_nuvem',
   pinhao_forte: 'pinhao_no_escuro',
   bom_sossego: 'sossego_nenhum',
+  pe_de_moleque: 'varredura_noturna',
 };
 
 /** Qual faixa toca em cada tela (a mesa depende do cliente). */

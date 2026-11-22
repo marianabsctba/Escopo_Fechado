@@ -1,0 +1,5 @@
+[
+  { "host": "site", "ip": "10.30.0.10", "porta": 80, "raiz": "/srv/site/html", "server": "nginx/1.22.1" },
+  { "host": "invasor", "ip": "198.51.100.66", "porta": 3333, "raiz": "/srv/invasor/html", "server": "nginx" },
+  { "host": "invasor", "ip": "198.51.100.66", "porta": 80, "raiz": "/srv/invasor/html", "server": "nginx" }
+]

@@ -1,0 +1,8 @@
+[
+  { "cmd": "ssh bilheteria 'ps -ef' | grep -c kworkerd", "espera": "\\s0\\s" },
+  { "cmd": "ssh bilheteria 'ls -la /tmp/.x 2>&1; ls /etc/crontabs/'", "espera": "No such file" },
+  { "cmd": "ssh bilheteria 'grep -c x@vps /home/admin/.ssh/authorized_keys'", "espera": "\\s0\\s" },
+  { "cmd": "ssh bilheteria 'grep :0:0: /etc/passwd'", "espera": "suporte:x:0:0" },
+  { "cmd": "ssh bilheteria 'ss -tn' | grep -c 198.51.100.66", "espera": "\\s0\\s" },
+  { "cmd": "ssh bilheteria 'tail -2 /var/log/auth.log'", "espera": "password for admin changed" }
+]
