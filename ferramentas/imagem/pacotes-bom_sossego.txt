@@ -1,0 +1,7 @@
+# Diretório (OpenLDAP no formato do AD) e compartilhamentos (Samba) da prefeitura
+openldap
+openldap-back-mdb
+openldap-clients
+samba-server
+samba-client
+samba-common-tools

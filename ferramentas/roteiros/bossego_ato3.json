@@ -1,0 +1,8 @@
+[
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -b dc=bomsossego,dc=exemplo '(objectClass=user)' sAMAccountName | grep -c '^sAMAccountName:'", "espera": "\\s0\\s" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -D 'cn=Servidor Teste,ou=Usuarios,dc=bomsossego,dc=exemplo' -w 'Teste@Contrato1' -b dc=bomsossego,dc=exemplo '(sAMAccountName=estagiario.ti)' description pwdLastSet", "espera": "description: Estagiario TI\\s[\\s\\S]*pwdLastSet: 2026-11-21" },
+  { "cmd": "smbclient //10.20.0.10/NETLOGON -U 'servidor.teste%Teste@Contrato1' -c 'ls' 2>&1", "espera": "logon\\.bat\\.bak" },
+  { "cmd": "smbclient //10.20.0.10/NETLOGON -U 'servidor.teste%Teste@Contrato1' -c 'get logon.bat.bak /tmp/bak' >/dev/null 2>&1; grep -c Financas2019 /tmp/bak", "espera": "\\s1\\s" },
+  { "cmd": "smbclient //10.20.0.20/Publico -U 'servidor.teste%Teste@Contrato1' -c 'ls arquivo_morto/*' 2>&1", "espera": "folha_pagamento_2026-10\\.csv" },
+  { "cmd": "nmap -p 445 --script smb2-security-mode,smb-protocols 10.20.0.20", "espera": "NT LM 0\\.12[\\s\\S]*enabled and required|enabled and required[\\s\\S]*NT LM 0\\.12" }
+]

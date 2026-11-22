@@ -1,0 +1,7 @@
+127.0.0.1	localhost
+::1	localhost
+# DNS interno da prefeitura (entregue pela VPN)
+10.20.0.10	dc01.bomsossego.exemplo dc01
+10.20.0.20	fs01.bomsossego.exemplo fs01
+10.20.1.5	camara.bomsossego.exemplo
+198.51.100.120	app.folhacerta.exemplo

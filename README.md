@@ -32,13 +32,17 @@ A cada publicação, robôs jogam o Ato 1 e o reteste dentro da VM (`ferramentas
 
 Teste não anunciado: o SOC do cliente não sabe, e varredura barulhenta abre chamado e custa pontos de discrição. Dicas custam pontos. A fábrica de software terceirizada fica fora do escopo, e ela ainda pede para você esconder achados do relatório. O reconhecimento usa `openssl` para ler certificados, `curl` e `jq` para documentação de API e cabeçalhos, e a LGPD aparece de novo, agora com saldo de associados.
 
+## São Jerônimo do Bom Sossego (expert)
+
+Teste interno com conta de servidor comum, num domínio montado em 2009. Um diretório no formato do Active Directory (OpenLDAP com esquema próprio: `sAMAccountName`, `memberOf`, `pwdLastSet`...) e um Samba de verdade. Com `ldapsearch`, `smbclient` e scripts do `nmap`, sem quebrar senha nenhuma, chega-se a duas credenciais de administrador do domínio só lendo o que estava aberto. A Câmara Municipal está na mesma rede e fora do escopo, o prefeito quer usar o relatório na campanha e a LGPD encontra a Lei de Acesso à Informação na folha de pagamento.
+
 ## Clientes (níveis)
 
 | nível | cliente | situação |
 |---|---|---|
 | Iniciante | **Boi na Nuvem**, frigorífico em Goiás que fez "transformação digital" com o sobrinho do dono | completo: contrato, reconhecimento, relatório e reteste |
 | Intermediário | **Pinhão Forte**, cooperativa de crédito no Paraná com app feito por fábrica terceirizada e SOC vigiando | completo: certificado TLS, documentação de API, cookie, erro verboso, homologação com dado real, relatório e reteste |
-| Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão | em breve |
+| Expert | **São Jerônimo do Bom Sossego**, prefeitura no sertão em ano eleitoral | completo: auditoria interna do domínio, relatório e reteste |
 
 Empresas, pessoas, domínios (`.exemplo`) e endereços (faixas de documentação da RFC 5737) são fictícios.
 

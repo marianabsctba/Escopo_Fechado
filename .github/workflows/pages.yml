@@ -30,6 +30,7 @@ jobs:
           sudo apt-get install -y -qq cpio kmod openssl >/dev/null
           sudo bash ferramentas/imagem/construir.sh boi_na_nuvem "$PWD/public/vm/boi_na_nuvem"
           sudo bash ferramentas/imagem/construir.sh pinhao_forte "$PWD/public/vm/pinhao_forte"
+          sudo bash ferramentas/imagem/construir.sh bom_sossego "$PWD/public/vm/bom_sossego"
       - name: "Boi na Nuvem: robô joga o Ato 1 dentro da VM"
         run: node ferramentas/testar-vm.mjs boi_na_nuvem ferramentas/roteiros/boi_ato1.json
         timeout-minutes: 8
@@ -42,6 +43,12 @@ jobs:
       - name: "Pinhão Forte: robô joga o reteste"
         run: node ferramentas/testar-vm.mjs pinhao_forte ferramentas/roteiros/pinhao_ato3.json reteste
         timeout-minutes: 8
+      - name: "Bom Sossego: robô audita o domínio dentro da VM"
+        run: node ferramentas/testar-vm.mjs bom_sossego ferramentas/roteiros/bossego_ato1.json
+        timeout-minutes: 12
+      - name: "Bom Sossego: robô joga o reteste"
+        run: node ferramentas/testar-vm.mjs bom_sossego ferramentas/roteiros/bossego_ato3.json reteste
+        timeout-minutes: 10
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

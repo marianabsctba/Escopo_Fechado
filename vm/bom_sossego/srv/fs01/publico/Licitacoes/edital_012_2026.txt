@@ -1,0 +1,2 @@
+Pregao eletronico 012/2026 - Aquisicao de 40 computadores para as secretarias.
+Requisito tecnico: "compativel com o servidor de 2009".

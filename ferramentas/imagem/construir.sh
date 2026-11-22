@@ -26,6 +26,10 @@ if [ ! -x "$TRAB/apk.static" ]; then
 fi
 
 PACOTES="$(grep -v '^#' "$AQUI/pacotes.txt" | xargs)"
+# pacotes só deste cenário (ex.: diretório e compartilhamentos da prefeitura)
+if [ -f "$AQUI/pacotes-$CENARIO.txt" ]; then
+  PACOTES="$PACOTES $(grep -v '^#' "$AQUI/pacotes-$CENARIO.txt" | xargs)"
+fi
 
 rm -rf "$ROOT"
 mkdir -p "$ROOT/etc/apk"
