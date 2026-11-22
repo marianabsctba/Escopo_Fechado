@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# Imagens da VM e o wasm do v86 sao gerados (ferramentas/imagem e ferramentas/copiar-v86.mjs)
+public/vm/
+public/v86/v86.wasm
+.claude/

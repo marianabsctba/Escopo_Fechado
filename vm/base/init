@@ -1,0 +1,42 @@
+#!/bin/sh
+# PID 1 da maquina do jogo. Sem openrc: sobe o minimo, monta o mundo do
+# cenario e entrega um shell na serial 0. A serial 1 e o canal com o jogo.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev
+mkdir -p /dev/pts /dev/shm /run /tmp /var/log /var/run/netns
+mount -t devpts devpts /dev/pts
+mount -t tmpfs tmpfs /run
+mount -t tmpfs tmpfs /dev/shm
+chmod 1777 /tmp
+
+stty -F /dev/ttyS1 raw -echo 115200 2>/dev/null
+chmod 666 /dev/ttyS1
+aviso() { printf 'EF:%s\n' "$*" > /dev/ttyS1; }
+aviso BOOT
+
+hostname notebook
+ip link set lo up
+modprobe veth 2>/dev/null
+
+# Usuaria da pentester
+if ! id pentester >/dev/null 2>&1; then
+  adduser -D -s /bin/bash -h /home/pentester pentester >/dev/null 2>&1
+  passwd -d pentester >/dev/null 2>&1
+fi
+cp -a /etc/skel/. /home/pentester/ 2>/dev/null
+chown -R pentester:pentester /home/pentester
+
+# Mundo do cenario (servidores do cliente em network namespaces)
+# O mundo só sobe quando o cenário estiver completo (arquivo mundo.ativo)
+if [ -x /etc/escopo/mundo.sh ] && [ -e /etc/escopo/mundo.ativo ]; then
+  /etc/escopo/mundo.sh > /var/log/mundo.log 2>&1
+fi
+aviso PRONTO
+
+while true; do
+  setsid -c /bin/login -f pentester < /dev/ttyS0 > /dev/ttyS0 2>&1
+  sleep 1
+done

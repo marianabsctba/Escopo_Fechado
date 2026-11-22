@@ -1,0 +1,23 @@
+{
+  "name": "escopo-fechado",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ferramentas/copiar-v86.mjs && vite",
+    "build": "node ferramentas/copiar-v86.mjs && tsc --noEmit && vite build",
+    "test": "vitest run",
+    "preview": "vite preview",
+    "vm:testar": "node ferramentas/testar-vm.mjs"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "0.10.0",
+    "@xterm/xterm": "5.5.0",
+    "v86": "0.5.476"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}
