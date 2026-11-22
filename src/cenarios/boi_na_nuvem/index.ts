@@ -4,6 +4,7 @@
 import type { Cenario, Mensagem } from '../../motor/tipos';
 import { manualBasico } from '../manual';
 import { ato1 } from './ato1';
+import { ato2 } from './ato2';
 
 const foraDoEscopo = (alvo: string, motivo: string, vez: number): Mensagem => {
   if (vez === 1) {
@@ -304,6 +305,7 @@ export const boiNaNuvem: Cenario = {
   reacoes: { foraDoEscopo },
   manual: manualBasico,
   ato1,
+  ato2,
   hostsFora: {
     hostbacana: 'A HostBacana é a hospedagem do site e não assinou o contrato.',
     paraiso: 'O Frigorífico Paraíso é concorrente do cliente. Sem autorização do dono, é crime (art. 154-A do Código Penal).',

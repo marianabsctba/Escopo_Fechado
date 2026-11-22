@@ -86,6 +86,33 @@ export interface Ato {
   conclusao: Mensagem[];
 }
 
+/** Um achado do Ato 1 transformado em seção do relatório. */
+export interface ItemRelatorio {
+  achado: string;
+  /** null: achado informativo, sem CVSS. */
+  cvss: { min: number; max: number; sugerido: string; explica: string } | null;
+  /** Passos para reproduzir, na ordem certa. */
+  passos: string[];
+  evidencia: Pergunta;
+  recomendacao: Pergunta;
+}
+
+export interface Final {
+  minimo: number;
+  titulo: string;
+  texto: string[];
+}
+
+export interface AtoRelatorio {
+  titulo: string;
+  abertura: Mensagem[];
+  itens: ItemRelatorio[];
+  sumario: { pedido: string; frases: { texto: string; boa: boolean; retorno: string }[] };
+  /** Perguntas da reunião; o id do personagem fica em Pergunta.de. */
+  reuniao: (Pergunta & { de: string })[];
+  finais: Final[];
+}
+
 export interface Cenario {
   id: string;
   nome: string;
@@ -109,6 +136,9 @@ export interface Cenario {
   };
   manual?: Comando[];
   ato1?: Ato;
+  ato2?: AtoRelatorio;
+  /** Reteste: mesmo formato de ato, com o mundo na fase "corrigida". */
+  ato3?: Ato;
   /** Hosts do mundo que estão fora do escopo (para os acessos HTTP). */
   hostsFora?: Record<string, string>;
 }

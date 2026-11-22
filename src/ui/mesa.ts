@@ -19,7 +19,7 @@ export function comandoDoJogo(cmd: string): boolean {
   return /^\s*stty rows \d+ cols \d+; clear$/.test(cmd);
 }
 
-export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () => void): void {
+export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () => void, aoRelatorio: () => void): void {
   limpar(raiz);
   const ato = c.ato1;
   const todas = (): Mensagem[] => [...(c.ato0?.assinado ?? []), ...(e.extras ?? [])];
@@ -91,7 +91,7 @@ export function telaMesa(raiz: HTMLElement, c: Cenario, e: Estado, aoSair: () =>
           (a) => { (e.dicas ??= {})[a.id] = (e.dicas[a.id] ?? 0) + 1; salvar(e); desenharConteudo(); },
           registrar,
           () => { e.lgpd = (e.lgpd ?? 0) + 1; salvar(e); desenharPlacar(); avisar('Evidência com CPF inteiro. Prova mínima é mascarada.', 'ruim'); }),
-        e.ato1Concluido ? h('div', { class: 'fim-ato' }, h('h3', {}, 'Ato 1 concluído'), h('p', {}, 'O sistema de pedidos fica para o Ato 2, que está em construção. Enquanto isso, dá pra caçar o bônus e revisar as recomendações.')) : '',
+        e.ato1Concluido && c.ato2 ? h('div', { class: 'fim-ato' }, h('h3', {}, 'Ato 1 concluído'), h('p', {}, 'Reconhecimento fechado. Agora vem a parte que o cliente paga de verdade: o relatório.'), h('button', { class: 'botao', onclick: aoRelatorio }, '> escrever o relatório (Ato 2)')) : '',
         h('p', { class: 'dica-copia' }, 'Dica: selecionar texto no terminal já copia. Cole aqui com Ctrl+V.'),
       );
     } else if (aba === 'mensagens') {

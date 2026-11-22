@@ -89,8 +89,8 @@ export const ato1: Ato = {
         'Baixe o arquivo e conte as linhas com wc -l, sem abrir tudo. Lembre que a primeira linha é o cabeçalho.',
         'Para o exemplo, head -n 2 basta. Mascare o CPF antes de colar: só os 3 primeiros e os 2 últimos dígitos ficam visíveis.',
       ],
-      severidade: 'critica',
-      porqueSeveridade: 'Dado pessoal de mais de mil clientes aberto na internet: incidente de segurança com dado pessoal, comunicação à ANPD e aos titulares em jogo (LGPD, art. 48).',
+      severidade: 'alta',
+      porqueSeveridade: 'Tecnicamente é alta (vaza confidencialidade, sem login, pela internet). A urgência vem da LGPD: dado pessoal de mais de mil clientes aberto é incidente de segurança, e a avaliação de comunicação à ANPD e aos titulares (art. 48) começa hoje.',
       recomendacao: 'Tirar o arquivo do ar já, verificar nos logs quem acessou, avaliar com o encarregado (DPO) a comunicação do incidente e apagar backups de pastas públicas.',
       validar: async (t) => {
         if (temCpfCompleto(t)) {

@@ -1,5 +1,6 @@
 // Progresso salvo no navegador. A VM não é salva: ao recarregar ela boota de novo.
 import type { Comando, Mensagem, Severidade } from './tipos';
+import type { EstadoRelatorio } from './relatorio';
 
 export interface Registro {
   quando: string;
@@ -9,7 +10,7 @@ export interface Registro {
 export interface Estado {
   versao: 1;
   cenario: string;
-  etapa: 'contrato' | 'mesa';
+  etapa: 'contrato' | 'mesa' | 'relatorio';
   /** Pergunta id -> índice das alternativas já tentadas. */
   tentativas: Record<string, number[]>;
   assinadoPor?: string;
@@ -27,6 +28,9 @@ export interface Estado {
   /** Evidências recusadas por expor dado pessoal. */
   lgpd?: number;
   ato1Concluido?: boolean;
+  relatorio?: EstadoRelatorio;
+  /** Fase do mundo na VM: o reteste sobe os servidores já "corrigidos". */
+  fase?: 'teste' | 'reteste';
 }
 
 const CHAVE = 'escopo-fechado:v1';

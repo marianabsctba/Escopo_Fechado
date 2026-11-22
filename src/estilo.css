@@ -242,3 +242,35 @@ input[type='checkbox'] { accent-color: var(--verde); }
   .titulo-capa::before, .titulo-capa::after { animation: none; display: none; }
   * { transition: none !important; }
 }
+
+/* Ato 2: relatório */
+.indice ol { list-style: none; padding: 0 8px; margin: 0 0 16px; counter-reset: s; }
+.indice li { counter-increment: s; padding: .35em 0; color: var(--texto-2); }
+.indice li::before { content: counter(s, decimal-leading-zero) '  '; color: var(--linha-forte); }
+.indice li.atual { color: var(--verde); text-shadow: 0 0 6px rgba(0, 255, 102, .5); }
+.indice li.feito { color: var(--texto); }
+.indice li.feito::before { content: '✔   '; color: var(--verde); }
+.msg-relatorio { padding: 0 8px; font-size: .9rem; border-top: 1px dashed var(--linha-forte); padding-top: 12px; }
+.cab-secao h2 { font-size: 1.4rem; }
+.metrica { display: grid; grid-template-columns: 170px 1fr; gap: 4px 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--linha); }
+.metrica small { grid-column: 2; color: var(--texto-2); }
+.metrica-nome { color: var(--texto); }
+.segmentos { display: flex; flex-wrap: wrap; gap: 4px; }
+.segmentos button { background: #000; border: 1px solid var(--linha-forte); color: var(--texto-2); padding: .3em .8em; border-radius: var(--raio); }
+.segmentos button:hover { border-color: var(--verde); color: var(--verde); }
+.segmentos button.ativo { background: var(--verde); color: #001a09; border-color: var(--verde); box-shadow: 0 0 10px rgba(0, 255, 102, .4); }
+.nota-cvss { margin-top: 16px; font-size: 1.1rem; }
+.nota-cvss strong { font-size: 1.6rem; color: var(--verde); text-shadow: 0 0 10px rgba(0, 255, 102, .6); font-weight: 400; }
+.montados { border: 1px dashed var(--linha-forte); padding: 10px 10px 10px 32px; min-height: 3em; }
+.montados:empty::before { content: 'clique nos passos abaixo, na ordem'; color: var(--texto-2); margin-left: -22px; }
+.montados li { margin: .3em 0; color: var(--verde); }
+.frase { display: flex; gap: 10px; align-items: flex-start; border: 1px solid var(--linha); padding: 10px 12px; margin: 8px 0; cursor: pointer; }
+.frase:hover { border-color: var(--linha-forte); }
+.frase input { margin-top: .35em; }
+.frase-retorno { border-left: 3px solid var(--verde); padding: 4px 12px; margin: 10px 0; }
+.frase-retorno.nao { border-left-color: var(--vermelho); }
+.frase-retorno p { margin: .3em 0; }
+.mini { color: var(--texto-2); font-size: .9rem; }
+.final h2 { font-size: 2rem; }
+.final .acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 820px) { .metrica { grid-template-columns: 1fr; } .metrica small { grid-column: 1; } }
